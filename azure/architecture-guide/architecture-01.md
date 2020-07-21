@@ -13,7 +13,7 @@ Please see the out-of-scope section
  
 # Recommendation of Azure Architecture : 
 
-
+![\[Diagram for Azure Architecture:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/architecture-01.png?raw=true)
 
 Key Components:
 
