@@ -20,19 +20,19 @@ Following is a list of the required instances to be provisioned in Azure environ
 SQL Managed Instance in Azure:
 * SQL MI DEV-01 :  For development of SQL DB schema and code
 * SQL MI DEV-02 : For development of SQL DB code
-* SQL MI DEV-03 :  For development of SQL DB schema and code<br />
-    These instances can be configured in a pool and each database will be of lesser configuration and need not be the same as SQL MI Prod instance.
-    SQL Managed instance pool for Dev
-    For example following SQL Dev size can be used.
-    SQL Managed Instance pool of 16 cores:<br />
-        *   The pool is intended to have 3 instances split as 8 core (ADF Pipeline),
-        *   4 core (Schema Conversion), 
-        *   4 core (Code Conversion).        
-Disk Size : Standard HDD of size can be equal to Oracle Stage DB size.
+* SQL MI DEV-03 :  For development of SQL DB schema and code<br>
+    *These instances can be configured in a pool and each database will be of lesser configuration and need not be the same as SQL MI Prod instance.<br>*
+    *SQL Managed instance pool for Dev<br>*
+    *For example following SQL Dev size can be used.<br>*
+    *SQL Managed Instance pool of 16 cores:<br>*
+        *   *The pool is intended to have 3 instances split as 8 core (ADF Pipeline),<br />*
+        *   **4 core (Schema Conversion),<br>*
+        *   4 core (Code Conversion).  <br>*    
+     *Disk Size : Standard HDD of size can be equal to Oracle Stage DB size.*
 
-* SQL MI QA: For quality assurance of incremental migrated code and data. 
-This instance will be required to match the Oracle database disk size, core and memory.<br />
-If CPU, RAM metrics are available for peak workloads, the sizing will be done accordingly. The data is awaited from RegEd.
+* SQL MI QA: For quality assurance of incremental migrated code and data. <br>
+*This instance will be required to match the Oracle database disk size, core and memory.<br />*
+*If CPU, RAM metrics are available for peak workloads, the sizing will be done accordingly. The data is awaited from RegEd.*
 
 * SQL MI STAGE / UAT/ Prod : For end-end quality assurance of migrated code and data.<br />
 This instance will be required to be of the same configuration as SQL MI QA  instance.
