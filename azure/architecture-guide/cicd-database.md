@@ -1,9 +1,9 @@
 # CICD for Migration from Oracle to SQL
 
 
+![\[Migration Architecture Diagram\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/sql-migration-arch.png?raw=true)
 				
-        
-        Migration Architecture Diagram
+        					Migration Architecture Diagram
 
 ## Scope
 The scope of DevOps for end to end migration of Oracle to SQL is to address schema, code and ADF pipeline configuration change management and strategize deployment pipelines for QA and Stage Environment.
@@ -71,16 +71,14 @@ Fig 3: Sample ADF folders and templates
 ## Change management of SQL DB schema and code
 A continuous integration mechanism to deploy SQL schema including code using Azure Pipeline can be put in place. Continuous integration practice is used by the development team to simplify the building and testing of code. This helps to catch problems early in the development cycle, which makes them easier and faster to fix. 
 
+![\[Change Mgmnt SQL Diagram\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/change-mgmnt-sql.png?raw=true)
+				 
+				 Oracle objects converted to SQL Objects (Schema and Code) ; Version control in Azure ReposGit 
 
-
-
-	Figure 4: Oracle objects converted to SQL Objects (Schema and Code) ; 
-    Version control in Azure ReposGit 
-
-Developer converts Oracle schema and Code to SQL schema and code using SSMA tool and manually. The sql schema and code are manually validated by publishing them in Azure SQL MI instances provisioned in the DEV environment.
-Developer creates a local SQL Database project on VS2019 ( if not already created) and syncs the SQL DEV changes into the local project. A DACPAC file is also generated using VS.
-Developer commits the synced changes from local project to a cloned git Oracle2SQL repository branch. As a standard followed practice, the developer creates a development branch from the master branch of repository.
-A PR is created on master branch from Development Branch, Review and Merge PR into master branch of repository.<br />
+i.Developer converts Oracle schema and Code to SQL schema and code using SSMA tool and manually. The sql schema and code are manually validated by publishing them ii.in Azure SQL MI instances provisioned in the DEV environment.<br>
+iii.Developer creates a local SQL Database project on VS2019 ( if not already created) and syncs the SQL DEV changes into the local project. A DACPAC file is also generated using VS.<br>
+iv.Developer commits the synced changes from local project to a cloned git Oracle2SQL repository branch. As a standard followed practice, the developer creates a development branch from the master branch of repository.<br>
+v.A PR is created on master branch from Development Branch, Review and Merge PR into master branch of repository.<br>
 
 *_Artifact_*: Tagged DACPAC file will be the artifact used to deploy schema and code.
 
@@ -89,23 +87,23 @@ A PR is created on master branch from Development Branch, Review and Merge PR in
 A continuous integration mechanism to publish ARM templates to ADF resources using ADF UX Pipeline can be put in place. 
 A separate data factory per environment is recoomended to be created. A Development Dev ADF integrated with Azure DevOps Git repository will be required. Here developers can author ADF entities like pipelines, datasets, and more. ADF pipeline execution for data migration will happen on SQL MI DEV. 
 
-### Process:
+![\[Change Mgmnt ADF Diagram\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/change-mgmnt-adf.png?raw=true)
 
-Developer creates ADF entities making use of a stable DB code build artifact. S/He can debug changes and perform test runs.
-Developer creates a PR from the feature branch to master branch, get reviewed and merged into master branch
-Merged changes are published to DEV ADF using ADF UX - Publish button.<br />
+i.Developer creates ADF entities making use of a stable DB code build artifact. S/He can debug changes and perform test runs.<br>
+ii.Developer creates a PR from the feature branch to master branch, get reviewed and merged into master branch.<br>
+iii.Merged changes are published to DEV ADF using ADF UX - Publish button.<br>
 *_Artifact_*: Tagged ARM templates will be the artifact used to deploy ADF configuration as code.
 
 
 ## Deploy Pipelines in QA
-Schema, code, and ADF pipeline configuration will be deployed and certified in QA environment. The following pipelines, as needed,  are recommended to be executed in a QA environment. 
-Pipeline 01: Schema/Code Deployment, from master branch, to SQL MI through the latest tagged DACPAC file. SQLPackage.exe will be used to publish the DACPAC.
-Pipeline 02: ADF code deployment from master branch, represented via ARM templates.ARM templates will be deployed with QA specific environment parameter files to QA.
-Pipeline 03: Data migration via Trigger of ADF pipelines in ADF UX. This will effectively lead to migration of all tables from Oracle to SQL. See more details in section Data Migration.
+Schema, code, and ADF pipeline configuration will be deployed and certified in QA environment. The following pipelines, as needed,  are recommended to be executed in a QA environment. <br>
+**Pipeline 01:** Schema/Code Deployment, from master branch, to SQL MI through the latest tagged DACPAC file. SQLPackage.exe will be used to publish the DACPAC.<br>
+**Pipeline 02:** ADF code deployment from master branch, represented via ARM templates.ARM templates will be deployed with QA specific environment parameter files to QA.<br>
+**Pipeline 03:** Data migration via Trigger of ADF pipelines in ADF UX. This will effectively lead to migration of all tables from Oracle to SQL. See more details in section Data Migration.<br>
 
+![\[Pipelines Diagram\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/azure-db-deploy-pipelines.png?raw=true)
 
-
-			Figure 6:  Pipelines to setup and execute data migration on QA 
+				  Pipelines to setup and execute data migration on QA 
 
 QA enviornment can be used when schema conversion from Oracle copy is completed as well as data migration pipelines are ready.  As code conversion is incrementally ready, DACPAC will start including the  converted code definitions as well.
 The release of the sprint N-1 (tentatively) can be targeted to be certified for promotion to Stage environment.
