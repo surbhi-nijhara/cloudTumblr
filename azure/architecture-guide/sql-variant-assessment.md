@@ -4,11 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0     | SQL-MI is recommended |
-|         | Pricing based on 210+ GB memory requirement. Basic Important metrics are considered|
-|         | :white_check_mark: |
-|         | Dev Sizing         |
-
+| 1.0     | SQL-MI as recommendation |
+|         | Pricing sample based on 210+ GB memory requirement. Basic Important metrics are considered|
 
 
 ### Overview
@@ -51,24 +48,21 @@ The remaining options i.e. SQL-MI and SQL VM are assessed based on the below tec
  
 #### Feature Parity between SQL-VM and SQL-MI
 The answers to below questions are sample answers based on a real scenario. If the answers change, then the final recommendation is subject to change.
- 
- 
- 
- 
+
+![\[Diagram for Features Assessment\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/sql-features-assessment.png?raw=true)
  
 #### Pricing
- 
-SQL-VM is nearly twice the Azure SQL-MI option.
- 
 
+![\[Diagram for Pricing Assessment\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/sql-pricing-assessment.png?raw=true?raw=true)
 
+SQL-VM is nearly twice the Azure SQL-MI option as seen below:
+![\[Diagram for Pricing Assessment\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/sql-pricing-sample.png?raw=true?raw=true)
+ 
 ###### Notes:
 i) Instance Pool and Single Instance show the same price in Azure Price calculator.
 Pricing link: https://azure.com/e/fd719f12a8554db3831bba983da6b035
  
 ii)The correct sizing of SQL-MI for development, needs more inputs like existing IOPS, latency, etc. which the RegEd team is working on it to provide. 
-
-
 
 #### Microsoft References:
 1. [Difference between SQL server on VM and Azure SQL-MI](https://docs.microsoft.com/en-us/azure/azure-sql/managed-instance/transact-sql-tsql-differences-sql-server)
