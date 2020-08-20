@@ -1,12 +1,14 @@
 #### Version
 
 
-**Version**  1.0
 
-**Main Version Update**<br />
-* SQL-MI is recommended<br />
-* Pricing based on 210+ GB memory requirement. Basic Important metrics are considered<br />
-* Dev Sizing
+| Version | Supported          |
+| ------- | ------------------ |
+| 1.0     | SQL-MI is recommended |
+|         | Pricing based on 210+ GB memory requirement. Basic Important metrics are considered|
+|         | :white_check_mark: |
+|         | Dev Sizing         |
+
 
 
 ### Overview
