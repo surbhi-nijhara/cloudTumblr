@@ -49,24 +49,19 @@ Shared Self Hosted Integration runtime in Windows instance RegEd’s on-premise.
 
 ## Code Structure
 ### Code Structure of SQL schema
-SQL objects repository is Azure Repos Git.. The repository will store SQL schema and code.
+SQL objects repository is Azure Repos Git. The repository will store SQL schema and code.
 
-
-         
-
-Fig1: All folders - Collapsed View				
-
-
-
-Fig 2: dbo.Views - Expanded View
-
-
+![\[SQL-Objects-Collapsed-Folders\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/SQL-Objects-Folders.png?raw=true)	
+	
+		SQL Objects folders - Collapsed and Expanded View(dbo.Views)
 
 ### Code Structure of ADF 
 ADF entities repository is Azure Repos Git. Another repository will store ADF pipeline configuration as ARM templates. 
 
 
-Fig 3: Sample ADF folders and templates
+![\[ADF-Templates-Folders\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/ADF-folders.png?raw=true)
+	
+		Sample ADF folders and templates
 
 ## Change management of SQL DB schema and code
 A continuous integration mechanism to deploy SQL schema including code using Azure Pipeline can be put in place. Continuous integration practice is used by the development team to simplify the building and testing of code. This helps to catch problems early in the development cycle, which makes them easier and faster to fix. 
@@ -124,8 +119,8 @@ Monitor at regular intervals. Rerun if required.
 Run Sanity tests of successfully migrated data 
 
 ## Deploy Pipelines in STAGE / UAT / PROD
-Deploy pipelines, similar to the pipelines created for QA environments, will be created for stage environments. The pipelines will specify the exact stable tagged artifacts for both DACPAC and ARM templates. When the stage release is successful, same artifact versions will be ready to be promoted and released for the Production environment.
-The stage in the release pipeline can be configured with pre-deployment approval for the deployment. The stage in the release pipeline can also be configured with post-deployment gates (like querying monitoring metrics) and approval for the approximate time limit required for data migration.
+Deploy pipelines, similar to the pipelines created for QA environments, will be created for stage environments. The pipelines will specify the exact stable tagged artifacts for both **DACPAC** and **ARM templates**. When the stage release is successful, same artifact versions will be ready to be promoted and released for the Production environment.<br>
+The stage in the release pipeline can be configured with **pre-deployment approval** for the deployment. The stage in the release pipeline can also be configured with **post-deployment gates** (like querying monitoring metrics) and **approval**for the approximate time limit required for data migration.
 
 
 
