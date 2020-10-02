@@ -45,10 +45,27 @@ b) Partitioning is a likely future requirement which is not supported by SQL-DB.
 The remaining options i.e. SQL-MI and SQL VM are assessed based on the below technical features and price comparison.
  
 #### Feature Parity between SQL-VM and SQL-MI
-The answers to below questions are sample answers based on a real scenario. If the answers change, then the final recommendation is subject to change.
+The answers to below questions are sample answers based on a real scenario. If the answers change, then the final recommendation is subject to change
 
-![\[Diagram for Features Assessment\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/sql-features-assessment.png?raw=true)
- 
+| No. | Assessment Questions | Feature Availability |  Sample Answers | Derived Choice  |
+| ----|--------------------- |----------------------|-----------------|---------------- |
+| 1   | Is DB size > upto 4 TB ?|SQL-DB supports only upto 4TB|Yes, ~3 TB|SQL-MI|
+| 2   | Is DB size >  upto 8TB ?|SQL-MI supports only upto 8TB|No|SQL-MI|
+| 3   | Is there any CDC<br/>requirement?|In SQL-Server only |No|SQL-MI|
+| 4   | Does Semantic Search<br/>need to be supported? |Windows Auth is in SQL-Server only|No|SQL-MI|
+| 5   | Is it Windows or SQL<br/>authentication? |Windows Auth is in SQL-Server only|Windows|SQL-MI| 
+| 6   | Are file streams/ filetable s<br/>needed? |In SQL-Server only|No|SQL-MI|
+| 8   | Are Distributed Transactions used? |Distributed Txs are SQL-Server only |No|SQL-MI|
+| 9   | [SP, Trigger Fns](https://docs.microsoft.com/en-us/azure/azure-sql/managed-instance/transact-sql-tsql-differences-sql-server#stored-procedures-functions-and-triggers) - Is any of<br/>these needed? |Limited in SQL-MI |No|SQL-MI|
+| 10  | [Linked Server](https://docs.microsoft.com/en-us/azure/azure-sql/managed-instance/transact-sql-tsql-differences-sql-server#linked-servers) - If needed, Does supported targets suffice?<br/>This is equivalent to "Heterogeneous Connectivity" in Oracle|Limited in SQL-MI|From Supported Targets|SQL-MI|
+| 11  | Are there any cross database queries?|In SQL-Server and SQL-MI<br/>.Not supported in SQL-DB|Yes|SQL-MI|
+| 12. | Is there a CLR integration to be done?|In SQL-Server and SQL-MI|None|SQL-MI|
+| 13. | What kind of partitioning is applied in<br/>the existing database? Is it a distributed /horizontal partitioning?|Not yet butrequired in future|SQL-MI|
+| 14. | Is there a time zone configuration<br/>required?|Time zone can be done only in SQL-Server and SQL-MI|Yes,EST|SQL-MI|
+| 15. | Is EKM(Extensible Key management with<br/>AKV required)? for TDE|In SQL-Server,SQL-MI and SQL-DB|Yes|SQL-MI|
+| 16. | Is EKM(Extensible Key management with<br/>AKV required)?<br/>for Column Level Encryption at server side|In SQL-Server only|Yes|SQ-Server or choose [Always Encrypted(client side)](https://docs.microsoft.com/en-us/sql/relational-databases/security/encryption/always-encrypted-database-engine?view=sql-server-ver15)|
+
+
 #### Pricing
 
 ![\[Diagram for Pricing Assessment\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/sql-pricing-assessment.png?raw=true?raw=true)
