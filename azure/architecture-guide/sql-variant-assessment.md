@@ -60,7 +60,7 @@ SQL-VM is nearly twice the Azure SQL-MI option as seen below:
 i) Instance Pool and Single Instance show the same price in Azure Price calculator.
 Pricing link: https://azure.com/e/fd719f12a8554db3831bba983da6b035
  
-ii)The correct sizing of SQL-MI for development, needs more inputs like existing IOPS, latency, etc. which the RegEd team is working on it to provide. 
+ii)The correct sizing of SQL-MI for development, needs more inputs like existing IOPS, latency, etc. 
 
 #### Microsoft References:
 1. [Difference between SQL server on VM and Azure SQL-MI](https://docs.microsoft.com/en-us/azure/azure-sql/managed-instance/transact-sql-tsql-differences-sql-server)
