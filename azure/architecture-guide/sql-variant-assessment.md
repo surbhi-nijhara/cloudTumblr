@@ -4,7 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0     | SQL-MI as recommendation based on sample questionnairre |
+| 1.0     | SQL-MI as recommendation based on sample questionnaire |
 |         | Pricing sample based on 200+ GB memory requirement. Basic Important metrics are considered |
 
 
@@ -31,7 +31,7 @@ Say the technology requirements are :<br />
 The main business objectives are generally as follows:
 * Chosen Azure SQL variant should be Cost effective 
  
-### Decsision: 
+### Decision: 
 Based on sample real-use case technical and costs considerations, Azure SQL Managed Instance is the appropriate fit here. The key drivers that led to this 
 recommendation are in follow-up sections. 
  
@@ -39,7 +39,7 @@ recommendation are in follow-up sections.
  
 Azure SQL-DB is assessed to be not a suitable option mainly due to below reasons:<br />
 a)Required database size is 4TB+. Azure SQL DB supports max 4TB in General purpose and Business Critical tiers, hence this option is not viable. 
-The Hyperscale option supports upto 100 TB however the features and high costs are not viable for XChange DB requirements. <br />
+The Hyperscale option supports up to 100 TB however the features and high costs are not viable for XChange DB requirements. <br />
 b) Partitioning is a likely future requirement which is not supported by SQL-DB. <br />
  
 The remaining options i.e. SQL-MI and SQL Server are assessed based on the below technical features and price comparison.
@@ -49,8 +49,8 @@ The answers to below questions are sample answers based on a real scenario. If t
 
 | No. |Feature Assessment Questions|Feature Availability|Sample Answers| Derived Choice|
 | ----|--------------------- |----------------------|-----------------|---------------|
-| 1   | Is DB size > upto 4 TB ?|SQL-DB supports only upto 4TB|Yes, ~3 TB|SQL-MI|
-| 2   | Is DB size >  upto 8TB ?|SQL-MI supports only upto 8TB|No|SQL-MI|
+| 1   | Is DB size > up to 4 TB ?|SQL-DB supports only up to 4TB|Yes, ~3 TB|SQL-MI|
+| 2   | Is DB size >  up to 8TB ?|SQL-MI supports only up to 8TB|No|SQL-MI|
 | 3   | Is there any CDC<br/>requirement?|In SQL-Server only |No|SQL-MI|
 | 4   | Does Semantic Search<br/>need to be supported? |Windows Auth is in SQL-Server only|No|SQL-MI|
 | 5   | Is it Windows or SQL<br/>authentication? |Windows Auth is in SQL-Server only|Windows|SQL-MI| 
@@ -70,8 +70,8 @@ The answers to below questions are sample answers based on a real scenario. If t
 ------|----------------------------|--------------|
 | 1.  |Sizing - Core|8 cores|
 | 2.  |Sizing - Memory|~32 GB used|
-| 3.  |Throughput requirements at peak times?Is less than 750 MB/s?|Yes - 1 MB/s|
-| 4.  |IOPs requirements at peak times in Pracle Prod? Is less than 6000?|Yes - 3000|
+| 3.  |Throughput requirements at peak times? Is less than 750 MB/s?|Yes - 1 MB/s|
+| 4.  |IOPs requirements at peak times in Prod? Is less than 6000?|Yes - 3000|
 | 5.  |SQL server Required on OS|Windows Latest version|
 
 
