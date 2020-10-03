@@ -47,8 +47,8 @@ The remaining options i.e. SQL-MI and SQL VM are assessed based on the below tec
 #### Feature Parity between SQL-VM and SQL-MI
 The answers to below questions are sample answers based on a real scenario. If the answers change, then the final recommendation is subject to change
 
-| No. | Assessment Questions | Feature Availability |  Sample Answers | Derived Choice  |
-| ----|--------------------- |----------------------|-----------------|---------------- |
+| No. |Feature Assessment Questions|Feature Availability|Sample Answers| Derived Choice|
+| ----|--------------------- |----------------------|-----------------|---------------|
 | 1   | Is DB size > upto 4 TB ?|SQL-DB supports only upto 4TB|Yes, ~3 TB|SQL-MI|
 | 2   | Is DB size >  upto 8TB ?|SQL-MI supports only upto 8TB|No|SQL-MI|
 | 3   | Is there any CDC<br/>requirement?|In SQL-Server only |No|SQL-MI|
@@ -65,12 +65,26 @@ The answers to below questions are sample answers based on a real scenario. If t
 | 15. | Is EKM(Extensible Key management with<br/>AKV required)? for TDE|In SQL-Server,SQL-MI and SQL-DB|Yes|SQL-MI|
 | 16. | Is EKM(Extensible Key management with<br/>AKV required)?<br/>for Column Level Encryption at server side|In SQL-Server only|Yes|SQ-Server or choose [Always Encrypted(client side)](https://docs.microsoft.com/en-us/sql/relational-databases/security/encryption/always-encrypted-database-engine?view=sql-server-ver15)|
 
+#### Size/Configuration of Source DB in Production
+| No. |Pricing assessment questions|Sample Answers|
+------|----------------------------|--------------|
+| 1.  |Sizing - Core|8 cores|
+| 2.  |Sizing - Memory|~32 GB used|
+| 3.  |Throughput requirements at peak times?Is less than 750 MB/s?|Yes - 1 MB/s|
+| 4.  |IOPs requirements at peak times in Pracle Prod? Is less than 6000?|Yes - 3000|
+| 5.  |SQL server Required on VM - OS|Windows Latest version|
 
-#### Pricing
 
-![\[Diagram for Pricing Assessment\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/sql-pricing-assessment.png?raw=true?raw=true)
+#### Pricing - Azure Estimate
+|Service type|Region|Description|Estimated monthly cost|
+-------------|------|-----------|----------------------|
+|Azure SQL-MI|East US|Managed Instance, General Purpose Tier, 5 GB Retention,<br/>Instance Pool, 1 64 vCore instance(s) x 730 Hours, 4398 GB Storage|$1,973.43|
+|Virtual Machines|East US|1 D64as v4 (8 vCPU(s), 256 GB RAM) x 730 Hours; Windows-SQL Server; Pay as you go;<br/>1 managed OS disks – E50, 4096 GiB, 100 transaction units, SQL Enterprise License (US$1,095.00). (Standard is $292).e|$3,046.36|
 
-SQL-VM is nearly twice the Azure SQL-MI option as seen below:
+
+SQL-VM is nearly twice the Azure SQL-MI option. This is another reason that has led to choosing the Azure SQL variant. 
+Below is an estimate of SQL MI pricing based on source DB Production configuration. 
+
 ![\[Diagram for Pricing Assessment\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/master/azure/diag_source/sql-pricing-sample.png?raw=true?raw=true)
  
 ###### Notes:
