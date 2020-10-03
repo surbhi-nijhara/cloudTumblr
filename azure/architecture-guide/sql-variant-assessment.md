@@ -39,7 +39,7 @@ recommendation are in follow-up sections.
  
 Azure SQL-DB is assessed to be not a suitable option mainly due to below reasons:<br />
 a)Required database size is 4TB+. Azure SQL DB supports max 4TB in General purpose and Business Critical tiers, hence this option is not viable. 
-The Hyperscale option supports up to 100 TB however the features and high costs are not viable for XChange DB requirements. <br />
+The Hyperscale option supports up to 100 TB however the features and high costs are not viable for sample source DB requirements. <br />
 b) Partitioning is a likely future requirement which is not supported by SQL-DB. <br />
  
 The remaining options i.e. SQL-MI and SQL Server are assessed based on the below technical features and price comparison.
@@ -59,7 +59,7 @@ The answers to below questions are sample answers based on a real scenario. If t
 | 9   | [SP, Trigger Fns](https://docs.microsoft.com/en-us/azure/azure-sql/managed-instance/transact-sql-tsql-differences-sql-server#stored-procedures-functions-and-triggers) - Is any of<br/>these needed? |Limited in SQL-MI |No|SQL-MI|
 | 10  | [Linked Server](https://docs.microsoft.com/en-us/azure/azure-sql/managed-instance/transact-sql-tsql-differences-sql-server#linked-servers) - If needed, Does supported targets suffice?<br/>This is equivalent to "Heterogeneous Connectivity" in Oracle|Limited in SQL-MI|From Supported Targets|SQL-MI|
 | 11  | Are there any cross database queries?|In SQL-Server and SQL-MI<br/>.Not supported in SQL-DB|Yes|SQL-MI|
-| 12. | Is there a CLR integration to be done?|In SQL-Server and SQL-MI|None|SQL-MI|
+| 12. | Is there a [CLR](https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/introduction-to-sql-server-clr-integration)(Common Language Runtime) integration to be done?|In SQL-Server and SQL-MI|None|SQL-MI|
 | 13. | What kind of partitioning is applied in<br/>the existing database? Is it a distributed /horizontal partitioning?|Not yet but required in future|SQL-MI|
 | 14. | Is there a time zone configuration<br/>required?|Time zone can be done only in SQL-Server and SQL-MI|Yes,EST|SQL-MI|
 | 15. | Is EKM(Extensible Key management with<br/>AKV required)? for TDE|In SQL-Server,SQL-MI and SQL-DB|Yes|SQL-MI|
