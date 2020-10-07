@@ -21,9 +21,9 @@
 
 This document is a quick guide intended to provide setup instructions for establishing a dedicated interconnection between organization’s on-premise network and Azure network using Azure Express route
 
-This guide can help serve your customers who are completely new to the concept and may seek GlobalLogic to provide information.
+This guide can help serve your customers who are completely new to the concept and may seek any organization to provide information.
 
-Note: The below details are presented taking an example of what it will take for GlobalLogic to setup Express Route connection to Azure Cloud platform via Tata as the ISP.
+Note: The below details are presented taking an example of what it will take for an organization to setup Express Route connection to Azure Cloud platform via Tata as the ISP.
 
 ##Network Diagram:
 
