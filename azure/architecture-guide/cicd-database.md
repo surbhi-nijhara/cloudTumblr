@@ -32,7 +32,7 @@ SQL Managed Instance in Azure:
 
 * SQL MI QA: For quality assurance of incremental migrated code and data. <br>
 *This instance will be required to match the Oracle database disk size, core and memory.<br />*
-*If CPU, RAM metrics are available for peak workloads, the sizing will be done accordingly. The data is awaited from RegEd.*
+*If CPU, RAM metrics are available for peak workloads, the sizing will be done accordingly. *
 
 * SQL MI STAGE / UAT/ Prod : For end-end quality assurance of migrated code and data.<br />
 This instance will be required to be of the same configuration as SQL MI QA  instance.
@@ -44,7 +44,7 @@ This instance will be required to be of the same configuration as SQL MI QA  ins
 
 **Devops Service:**
 Azure Devops Server in on-premise or Azure Devops Service in Cloud.<br />
-Shared Self Hosted Integration runtime in Windows instance RegEd’s on-premise.
+Shared Self Hosted Integration runtime in Windows instance on-premise / on-clud.
 
 
 ## Code Structure
