@@ -10,7 +10,7 @@ The scope of DevOps for end to end migration of Oracle to SQL is to address sche
 
 Azure DevOps server or service be used for code change and release. The strategy and steps to effectively release the code and migrate to the oracle data is scoped to below migration entities.
 
-* Source: Oracle DB instance hosted in RegEd on-premise environment.
+* Source: Oracle DB instance hosted in on-premise environment.
 * Destination: SQL Managed Instance hosted in Azure cloud.
 * Migration is planned to be executed in an offline mode. 
 
