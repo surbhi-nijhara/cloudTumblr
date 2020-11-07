@@ -1,0 +1,153 @@
+
+
+
+
+
+
+Remove Approach:
+
+1. Create the SQS queue
+Create a new SQS queue.   We will set the permissions in a later step, after we've created the SNS topic.
+Message retention period should be configured to a value greater than the frequency of the scheduled powershell script.
+
+2. Create the SNS topic
+Create a new SNS topic and add a subscription to the SNS topic selecting 'Amazon SQS' as the endpoint, ie: arn:aws:sqs:us-east-2:{aws-account-id}:poc-removead
+
+3. Configure providing permission to SNS to be allowed to send the Ec2 Termination message to SQS queue 
+In the SQS queue  created in the prior step and select the 'Access Policy' tab.  Add below policy 
+Modify with your SNS ARN and the SQS ARNs.
+
+{
+  "Version": "2012-10-17",
+  "Id": "SQSSendMessagePolicy",
+  "Statement": [
+    {
+      "Sid": "SQS-Access",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "SQS:SendMessage",
+      "Resource": "arn:aws:sqs:us-east-2:{aws-account-id}:poc-removead",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "arn:aws:sns:us-east-2:{aws-account-id}:poc-removead"
+        }
+      }
+    }
+
+
+4. Configure the notification for the Auto Scaling Group
+Select your Auto Scaling Group and choose the 'Notifications' tab and then 'Create notification'.
+For the notification choose the option 'terminate' and select the SNS topic created earlier.
+
+
+5. Configure the IAM role
+The EC2 instance that will be running our Powershell cleanup script  requires permissions to access the SQS queue.  To allow this, configure a security policy for the IAM role that is attached to the instance.  Modify the policy below for the Resource ARN to match your SQS ARN.
+
+"SQS-Access": {
+    "Version": "2012-10-17",
+     "Statement": [
+        {
+         "Action": [
+            sqs:GetQueueAttributes,
+            sqs:GetQueueUrl,
+            sqs:ReceiveMessage,
+            sqs:DeleteMessage
+          ],
+          "Resource": "arn:aws:sqs:us-east-1:123456789012:SQS-InstanceTerminations",
+          "Effect": "Allow"
+          }
+      ]
+}
+
+
+
+
+Prepare the Ec2 to run Powershell script:
+1. Open Windows Powershell ISE 
+
+2. Set-AWSCredential `
+                 -AccessKey {access-key} `
+                 -SecretKey {secret-key} `
+                 -StoreAs default
+                 
+ 3. Save and Run below Powershell script
+
+###Windows Powershell Script:
+  #Function that logs a message to a text file
+function LogMessage
+{
+    param([string]$Message)
+    
+    ((Get-Date).ToString() + " - " + $Message) >> $LogFile;
+}
+
+$LogFile = "C:PSLog.txt"#Full location of the log file
+$Message = "This is my first log to file";#Message that will be logged
+
+#Delete log file if it exists
+if(Test-Path $LogFile)
+{
+    Remove-Item $LogFile
+}
+ 
+$Message >> $LogFile;#Write the variable to the log file
+
+#Get the SQS queue URL
+$queueurl = Get-SQSQueueUrl -queuename poc-removead -QueueOwnerAWSAccountId 126127892668 -region us-east-2
+
+#Get the number of SQS messages in the queue
+
+$messages = Get-SQSQueueAttribute -QueueUrl $queueurl -AttributeName ApproximateNumberOfMessages -Region us-east-2
+
+LogMessage -Message "messages:";
+$messages >> $LogFile;
+LogMessage -Message "messageCount:";
+$messageCount = $messages.ApproximateNumberOfMessages
+$messageCount >> $LogFile;
+
+
+#Loop through each message to remove the terminated server from Active Directory
+While ($messageCount -gt 0) 
+ {
+$messageCount-=1
+$message = Receive-SQSMessage -QueueUrl $queueurl -Region us-east-2
+LogMessage -Message "message:";
+$message >> $LogFile;
+
+$jsonObj =  $($message.Body) | ConvertFrom-Json
+LogMessage -Message "jsonObj after ConvertFromJson:";
+$jsonObj >> $LogFile;
+
+$id=$jsonObj.EC2InstanceId
+LogMessage -Message "id after ConvertFromJson:";
+$id >> $LogFile;
+
+$consoleOutput = Get-EC2ConsoleOutput -InstanceId $id -Region us-east-2
+$bytes = [System.Convert]::FromBase64String($consoleOutput.Output)
+$instanceIds = (Get-EC2Instance -Filter @(@{name="platform";value="windows"})).Instances.InstanceId
+# Convert from Base 64 string
+    $bytes = [System.Convert]::FromBase64String($consoleOutput.Output)
+    $string = [System.Text.Encoding]::UTF8.GetString($bytes)
+
+    # If the string contains RDPCERTIFICATE-SUBJECTNAME, we can extract the hostname
+    if($string -match 'RDPCERTIFICATE-SUBJECTNAME: .*') {
+      $windowsHostName = $matches[0] -replace 'RDPCERTIFICATE-SUBJECTNAME: '}
+
+
+Get-ADComputer -Identity $windowsHostName | Remove-ADObject -Recursive -Confirm:$False
+
+Remove-SQSMessage -QueueUrl $queueurl -ReceiptHandle $message.ReceiptHandle -region us-east-2 -Force
+
+LogMessage -Message "Done";
+}
+  
+
+
+
+4. Schedule Task:
+
+[TBD]
+
+[Reference](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/)
+http://thesysadminswatercooler.blogspot.com/2016/01/aws-using-sqs-to-cleanup-active.html
+
