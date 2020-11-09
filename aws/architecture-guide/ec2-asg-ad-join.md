@@ -1,5 +1,26 @@
 
-
+Join Approach:
+The approach is to use SSM.
+1. Follow this document Use SSM document
+2. Prerequistes:
+a) Create a AWS directory. 
+b) Create an Ec2 out of Image and also use the directory information in Ec2 launch wizard. I used <this image>
+c) On the ec2 instance created -
+ Add Roles 
+ AD - Thsi will enable to use Active Directory Users and Computers. 
+ We can also see the OU= glad and under the same use Users and Computers.
+ 
+ d) Also change the Administrator password.
+ e) Just disconnect and check if you can log into the Ec2 using
+    a) User Administrator and new changed password.
+    b) User AD domain and its password.
+ e) Use Ec2 Launch v2.
+     i) Ensure is unchecked.
+     ii) Password - Specify
+     iii)Do a SysPrep using Ec2 Launch.
+     After sysprep, the Ec2 instance as expected cannot be 
+    
+  
 
 
 
