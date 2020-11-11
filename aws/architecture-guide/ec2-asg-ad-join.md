@@ -3,6 +3,16 @@ The purpose of this blog is to demonstrate
 a) how to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory.).
 b) Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
 
+The AD joining PoC is completed using SSM.
+-  New instance in ASG becomes part of the AD domain.
+- SSM document retrieves the new associations.- New instance in ASG gets a new hostname
+- New instance can be accessed using the specified password as well as AD creds.
+I then started with the approach of removing the terminated EC2 from AD.
+The way I am approaching is as follows:
+- A terminated instance is notified and then I am implementing a powershell script which reads this notification and removes from AD.
+- This script can be set as a scheduled task.
+
+
 ### Join Approach:
 1. Mainly follow [this](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. However, while following this document, below are more details that will help achieve the result.
 2. Prerequistes:<br />
@@ -17,7 +27,11 @@ b) Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname
        i) User Administrator and new changed password.<br/>
       ii) User AD domain and its password.<br/>
    g) When logged in with AD login, you will be to access Active Directory Users and Computers and see the OU=glad and under it use Users and Computers.<br/>
-   f) Login back with user:Administrator and open  EC2Launch v2.<br />
+   f) Login back with user:Administrator and .<br />
+   g)  SSM should be installed in the instance. 
+   h)  Roles for SSM
+   i)  In Windows Powershell, InitializeInstance should be run
+   j)open  EC2Launch v2
       i) Ensure is unchecked.<br />
      ii) Password - Specify<br />
     iii) Do a Shutdown with SysPrep using EC2Launch Settings.<br />
@@ -26,8 +40,8 @@ b) Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname
    g) Create Image of the above Ec2 instance, say poc-ami
    
    h) Use this image in AWS Launch Configuration.
-      
-
+   
+ 
 ### Remove Approach:<br/>
 
 1. Create the SQS queue<br/><br/>
@@ -174,4 +188,29 @@ Prepare the Ec2 to run Powershell script:<br/>
 
 [Reference](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/)
 http://thesysadminswatercooler.blogspot.com/2016/01/aws-using-sqs-to-cleanup-active.html
+
+
+
+SOme Troubleshooting
+Hidden files:
+https://www.bitdefender.com/consumer/support/answer/1940/#:~:text=Click%20the%20Start%20button%2C%20then%20select%20Control%20Panel.&text=Click%20on%20Appearance%20and%20Personalization.&text=Select%20Folder%20Options%2C%20then%20select%20the%20View%20tab.&text=%E2%80%A2-,Under%20Advanced%20settings%2C%20select%20Show%20hidden%20files%2C%20folders%2C,and%20drives%2C%20then%20click%20Apply.
+
+Password of AMI issue:
+https://stackoverflow.com/questions/36496347/unable-to-get-password-for-the-instance-created-from-ami#:~:text=Password%20is%20not%20available.,the%20default%20password%20has%20changed.&text=If%20you%20have%20forgotten%20your,for%20a%20Windows%20Server%20Instance.
+
+#### Amazon EC2 custom AMI not running bootstrap (user-data)
+    <powershell>
+     Set-DefaultAWSRegion -Region us-east-2
+     Set-Variable -name instance_id -value (Invoke-Restmethod -uri http://169.254.169.254/latest/meta-data/instance-id)
+     New-SSMAssociation -InstanceId $instance_id -Name "awsconfig_Domain_d-9a672bcc48_glad.test.com"
+     </powershell>
+     <persist>true</persist>
+     
+  ##### Run the following powershell to schedule a Windows Task that will run the user data on next boot:
+      C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
+
+C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
+
+Reference: https://stackoverflow.com/questions/26158411/amazon-ec2-custom-ami-not-running-bootstrap-user-data
+
 
