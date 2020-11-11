@@ -1,28 +1,31 @@
+
 The purpose of this blog is to demonstrate 
 a) how to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory.).
 b) Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
 
 ### Join Approach:
-The approach is to use AWS SSM.
-1. Follow [this](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document.
-2. Prerequistes:<br/>
-   a) Create a AWS directory. <br/>
-   b) Create an EC2 from an AWS provided Windows Server Image.<br/> 
-      While creating the instance provide the directory information in EC2 launch wizard. 
-   c) On the created Ec2 instance -<br/>
-   Add Roles 
-   AD - This will enable to use Active Directory Users and Computers. <br/>
-   We can also see the OU=glad and under the same use Users and Computers.<br/>
- 
-   d) Also change the Administrator password.<br/>
-   e) Just disconnect and check if you can log into the Ec2 using<br/>
+1. Mainly follow [this](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. However, while following this document, below are more details that will help achieve the result.
+2. Prerequistes:<br />
+   a) Create a AWS directory. This is as mentioned in the document. <br/>
+   b) Create an EC2 from an AWS provided Windows Server Image, say poc-orig-inst.<br/> 
+       While creating the instance provide the directory information in EC2 launch wizard. 
+   c) Remote Login into the launched Ec2 instance (poc-orig-inst)
+   d) Using 'Server Manager',select add Roles and Features, select Role-based or feature-based installation, and add following roles:
+      - AD Domain Services. This will enable to use Active Directory Users and Computers. <br />
+   e) Also change the Administrator password.<br/>
+   f) Just disconnect and check if you can log into the Ec2 using<br/>
        i) User Administrator and new changed password.<br/>
       ii) User AD domain and its password.<br/>
-   f) Use EC2Launch v2.<br/>
-      i) Ensure is unchecked.<br/>
-     ii) Password - Specify<br/>
-    iii) Do a Shutdown with SysPrep using EC2Launch Settings.<br/>
+   g) When logged in with AD login, you will be to access Active Directory Users and Computers and see the OU=glad and under it use Users and Computers.<br/>
+   f) Login back with user:Administrator and open  EC2Launch v2.<br />
+      i) Ensure is unchecked.<br />
+     ii) Password - Specify<br />
+    iii) Do a Shutdown with SysPrep using EC2Launch Settings.<br />
          After shutting down with sysprep, the EC2 instance as expected cannot be accessed using AD credentials. <br/>
+         
+   g) Create Image of the above Ec2 instance, say poc-ami
+   
+   h) Use this image in AWS Launch Configuration.
       
 
 ### Remove Approach:<br/>
