@@ -1,24 +1,28 @@
+The purpose of this blog is to demonstrate 
+a) how to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory.).
+b) Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
 
-Join Approach:
-The approach is to use SSM.
-1. Follow this document Use SSM document
+### Join Approach:
+The approach is to use AWS SSM.
+1. Follow [this](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document.
 2. Prerequistes:<br/>
-a) Create a AWS directory. <br/>
-b) Create an Ec2 out of Image and also use the directory information in Ec2 launch wizard. I used <this image> <br/>
-c) On the ec2 instance created -<br/>
- Add Roles 
- AD - Thsi will enable to use Active Directory Users and Computers. <br/>
- We can also see the OU= glad and under the same use Users and Computers.<br/>
+   a) Create a AWS directory. <br/>
+   b) Create an EC2 from an AWS provided Windows Server Image.<br/> 
+      While creating the instance provide the directory information in EC2 launch wizard. 
+   c) On the created Ec2 instance -<br/>
+   Add Roles 
+   AD - This will enable to use Active Directory Users and Computers. <br/>
+   We can also see the OU=glad and under the same use Users and Computers.<br/>
  
-d) Also change the Administrator password.<br/>
-e) Just disconnect and check if you can log into the Ec2 using<br/>
-    a) User Administrator and new changed password.<br/>
-    b) User AD domain and its password.<br/>
-f) Use Ec2 Launch v2.<br/>
-     i) Ensure is unchecked.<br/>
+   d) Also change the Administrator password.<br/>
+   e) Just disconnect and check if you can log into the Ec2 using<br/>
+       i) User Administrator and new changed password.<br/>
+      ii) User AD domain and its password.<br/>
+   f) Use EC2Launch v2.<br/>
+      i) Ensure is unchecked.<br/>
      ii) Password - Specify<br/>
-     iii)Do a SysPrep using Ec2 Launch.<br/>
-     After sysprep, the Ec2 instance as expected cannot be <br/>
+    iii) Do a Shutdown with SysPrep using EC2Launch Settings.<br/>
+         After shutting down with sysprep, the EC2 instance as expected cannot be accessed using AD credentials. <br/>
       
 
 ### Remove Approach:<br/>
@@ -34,24 +38,25 @@ Create a new SNS topic and add a subscription to the SNS topic selecting 'Amazon
 In the SQS queue  created in the prior step and select the 'Access Policy' tab.  Add below policy <br/>
 Modify with your SNS ARN and the SQS ARNs.<br/>
 
-    {
-       "Version": "2012-10-17",
-       "Id": "SQSSendMessagePolicy",
-       "Statement": [
-       {
+   
+      {
+        "Version": "2012-10-17",
+        "Id": "SQSSendMessagePolicy",
+        "Statement": [
+        { 
           "Sid": "SQS-Access",
           "Effect": "Allow",
           "Principal": "*",
           "Action": "SQS:SendMessage",
-          "Resource": "arn:aws:sqs:us-east-2:{aws-account-id}:poc-removead",
+          "Resource": "arn:aws:sqs:us-east-2:126127892668:poc-removead",
           "Condition": {
-             "ArnEquals": {
-                "aws:SourceArn": "arn:aws:sns:us-east-2:{aws-account-id}:poc-removead"
-              }
+          "ArnEquals": {
+            "aws:SourceArn": "arn:aws:sns:us-east-2:126127892668:poc-removead"
           }
-       }
-       ]
+        }
       }
+     ]
+    }
        
 
 
