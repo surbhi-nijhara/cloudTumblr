@@ -94,73 +94,70 @@ Prepare the Ec2 to run Powershell script:
  3. Save and Run below Powershell script
 
 ###Windows Powershell Script:
-  #Function that logs a message to a text file
-function LogMessage
-{
-    param([string]$Message)
+
+
+    #Function that logs a message to a text file
+    function LogMessage
+    {
+        param([string]$Message)
     
-    ((Get-Date).ToString() + " - " + $Message) >> $LogFile;
-}
+       ((Get-Date).ToString() + " - " + $Message) >> $LogFile;
+    }
+    $LogFile = "C:PSLog.txt"#Full location of the log file
 
-$LogFile = "C:PSLog.txt"#Full location of the log file
-$Message = "This is my first log to file";#Message that will be logged
-
-#Delete log file if it exists
-if(Test-Path $LogFile)
-{
-    Remove-Item $LogFile
-}
+    #Delete log file if it exists
+    if(Test-Path $LogFile)
+    {
+        Remove-Item $LogFile
+    }
  
-$Message >> $LogFile;#Write the variable to the log file
+    $Message >> $LogFile;#Write the variable to the log file
 
-#Get the SQS queue URL
-$queueurl = Get-SQSQueueUrl -queuename poc-removead -QueueOwnerAWSAccountId 126127892668 -region us-east-2
+    #Get the SQS queue URL
+    $queueurl = Get-SQSQueueUrl -queuename poc-removead -QueueOwnerAWSAccountId <account-id> -region us-east-2
 
-#Get the number of SQS messages in the queue
+    #Get the number of SQS messages in the queue
 
-$messages = Get-SQSQueueAttribute -QueueUrl $queueurl -AttributeName ApproximateNumberOfMessages -Region us-east-2
+    $messages = Get-SQSQueueAttribute -QueueUrl $queueurl -AttributeName ApproximateNumberOfMessages -Region us-east-2
 
-LogMessage -Message "messages:";
-$messages >> $LogFile;
-LogMessage -Message "messageCount:";
-$messageCount = $messages.ApproximateNumberOfMessages
-$messageCount >> $LogFile;
+    LogMessage -Message "messages:";
+    $messages >> $LogFile;
+    LogMessage -Message "messageCount:";
+    $messageCount = $messages.ApproximateNumberOfMessages
+    $messageCount >> $LogFile;
 
+    #Loop through each message to remove the terminated server from Active Directory
+    While ($messageCount -gt 0) 
+    {
+       $messageCount-=1
+       $message = Receive-SQSMessage -QueueUrl $queueurl -Region us-east-2
+       LogMessage -Message "message:";
+       $message >> $LogFile;
 
-#Loop through each message to remove the terminated server from Active Directory
-While ($messageCount -gt 0) 
- {
-$messageCount-=1
-$message = Receive-SQSMessage -QueueUrl $queueurl -Region us-east-2
-LogMessage -Message "message:";
-$message >> $LogFile;
+       $jsonObj =  $($message.Body) | ConvertFrom-Json
+       LogMessage -Message "jsonObj after ConvertFromJson:";
+       $jsonObj >> $LogFile;
 
-$jsonObj =  $($message.Body) | ConvertFrom-Json
-LogMessage -Message "jsonObj after ConvertFromJson:";
-$jsonObj >> $LogFile;
+       $id=$jsonObj.EC2InstanceId
+       LogMessage -Message "id after ConvertFromJson:";
+       $id >> $LogFile;
 
-$id=$jsonObj.EC2InstanceId
-LogMessage -Message "id after ConvertFromJson:";
-$id >> $LogFile;
+       $consoleOutput = Get-EC2ConsoleOutput -InstanceId $id -Region us-east-2
+       $bytes = [System.Convert]::FromBase64String($consoleOutput.Output)
+       $instanceIds = (Get-EC2Instance -Filter @(@{name="platform";value="windows"})).Instances.InstanceId
+       
+       #Convert from Base 64 string
+       $bytes = [System.Convert]::FromBase64String($consoleOutput.Output)
+       $string = [System.Text.Encoding]::UTF8.GetString($bytes)
 
-$consoleOutput = Get-EC2ConsoleOutput -InstanceId $id -Region us-east-2
-$bytes = [System.Convert]::FromBase64String($consoleOutput.Output)
-$instanceIds = (Get-EC2Instance -Filter @(@{name="platform";value="windows"})).Instances.InstanceId
-# Convert from Base 64 string
-    $bytes = [System.Convert]::FromBase64String($consoleOutput.Output)
-    $string = [System.Text.Encoding]::UTF8.GetString($bytes)
+       #If the string contains RDPCERTIFICATE-SUBJECTNAME, we can extract the hostname
+       if($string -match 'RDPCERTIFICATE-SUBJECTNAME: .*') {
+            $windowsHostName = $matches[0] -replace 'RDPCERTIFICATE-SUBJECTNAME: '}
 
-    # If the string contains RDPCERTIFICATE-SUBJECTNAME, we can extract the hostname
-    if($string -match 'RDPCERTIFICATE-SUBJECTNAME: .*') {
-      $windowsHostName = $matches[0] -replace 'RDPCERTIFICATE-SUBJECTNAME: '}
-
-
-Get-ADComputer -Identity $windowsHostName | Remove-ADObject -Recursive -Confirm:$False
-
-Remove-SQSMessage -QueueUrl $queueurl -ReceiptHandle $message.ReceiptHandle -region us-east-2 -Force
-
-LogMessage -Message "Done";
-}
+       Get-ADComputer -Identity $windowsHostName | Remove-ADObject -Recursive -Confirm:$False
+       Remove-SQSMessage -QueueUrl $queueurl -ReceiptHandle $message.ReceiptHandle -region us-east-2 -Force
+       LogMessage -Message "Done";
+     }
   
 
 
