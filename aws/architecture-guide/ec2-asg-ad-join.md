@@ -2,99 +2,97 @@
 Join Approach:
 The approach is to use SSM.
 1. Follow this document Use SSM document
-2. Prerequistes:
-a) Create a AWS directory. 
-b) Create an Ec2 out of Image and also use the directory information in Ec2 launch wizard. I used <this image>
-c) On the ec2 instance created -
+2. Prerequistes:<br/>
+a) Create a AWS directory. <br/>
+b) Create an Ec2 out of Image and also use the directory information in Ec2 launch wizard. I used <this image> <br/>
+c) On the ec2 instance created -<br/>
  Add Roles 
- AD - Thsi will enable to use Active Directory Users and Computers. 
- We can also see the OU= glad and under the same use Users and Computers.
+ AD - Thsi will enable to use Active Directory Users and Computers. <br/>
+ We can also see the OU= glad and under the same use Users and Computers.<br/>
  
- d) Also change the Administrator password.
- e) Just disconnect and check if you can log into the Ec2 using
-    a) User Administrator and new changed password.
-    b) User AD domain and its password.
- e) Use Ec2 Launch v2.
-     i) Ensure is unchecked.
-     ii) Password - Specify
-     iii)Do a SysPrep using Ec2 Launch.
-     After sysprep, the Ec2 instance as expected cannot be 
-    
-  
+d) Also change the Administrator password.<br/>
+e) Just disconnect and check if you can log into the Ec2 using<br/>
+    a) User Administrator and new changed password.<br/>
+    b) User AD domain and its password.<br/>
+f) Use Ec2 Launch v2.<br/>
+     i) Ensure is unchecked.<br/>
+     ii) Password - Specify<br/>
+     iii)Do a SysPrep using Ec2 Launch.<br/>
+     After sysprep, the Ec2 instance as expected cannot be <br/>
+      
 
+### Remove Approach:<br/>
 
+1. Create the SQS queue<br/><br/>
+Create a new SQS queue.   We will set the permissions in a later step, after we've created the SNS topic.<br/>
+Message retention period should be configured to a value greater than the frequency of the scheduled powershell script.<br/>
 
+2. Create the SNS topic<br/>
+Create a new SNS topic and add a subscription to the SNS topic selecting 'Amazon SQS' as the endpoint, ie: arn:aws:sqs:us-east-2:{aws-account-id}:poc-removead<br/>
 
-Remove Approach:
+3. Configure providing permission to SNS to be allowed to send the Ec2 Termination message to SQS queue<br/>
+In the SQS queue  created in the prior step and select the 'Access Policy' tab.  Add below policy <br/>
+Modify with your SNS ARN and the SQS ARNs.<br/>
 
-1. Create the SQS queue
-Create a new SQS queue.   We will set the permissions in a later step, after we've created the SNS topic.
-Message retention period should be configured to a value greater than the frequency of the scheduled powershell script.
-
-2. Create the SNS topic
-Create a new SNS topic and add a subscription to the SNS topic selecting 'Amazon SQS' as the endpoint, ie: arn:aws:sqs:us-east-2:{aws-account-id}:poc-removead
-
-3. Configure providing permission to SNS to be allowed to send the Ec2 Termination message to SQS queue 
-In the SQS queue  created in the prior step and select the 'Access Policy' tab.  Add below policy 
-Modify with your SNS ARN and the SQS ARNs.
-
-{
-  "Version": "2012-10-17",
-  "Id": "SQSSendMessagePolicy",
-  "Statement": [
     {
-      "Sid": "SQS-Access",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "SQS:SendMessage",
-      "Resource": "arn:aws:sqs:us-east-2:{aws-account-id}:poc-removead",
-      "Condition": {
-        "ArnEquals": {
-          "aws:SourceArn": "arn:aws:sns:us-east-2:{aws-account-id}:poc-removead"
-        }
+       "Version": "2012-10-17",
+       "Id": "SQSSendMessagePolicy",
+       "Statement": [
+       {
+          "Sid": "SQS-Access",
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": "SQS:SendMessage",
+          "Resource": "arn:aws:sqs:us-east-2:{aws-account-id}:poc-removead",
+          "Condition": {
+             "ArnEquals": {
+                "aws:SourceArn": "arn:aws:sns:us-east-2:{aws-account-id}:poc-removead"
+              }
+          }
+       }
+       ]
       }
+       
+
+
+4. Configure the notification for the Auto Scaling Group<br/>
+Select your Auto Scaling Group and choose the 'Notifications' tab and then 'Create notification'.<br/>
+For the notification choose the option 'terminate' and select the SNS topic created earlier.<br/>
+
+
+5. Configure the IAM role<br/>
+The EC2 instance that will be running our Powershell cleanup script  requires permissions to access the SQS queue.  To allow this, configure a security policy for the IAM role that is attached to the instance.  Modify the policy below for the Resource ARN to match your SQS ARN.<br/>
+
+    "SQS-Access": {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+             "Action": [
+               sqs:GetQueueAttributes,
+               sqs:GetQueueUrl,
+               sqs:ReceiveMessage,
+               sqs:DeleteMessage
+              ],
+              "Resource": "arn:aws:sqs:us-east-1:123456789012:SQS-InstanceTerminations",
+              "Effect": "Allow"
+          }
+        ]
     }
 
 
-4. Configure the notification for the Auto Scaling Group
-Select your Auto Scaling Group and choose the 'Notifications' tab and then 'Create notification'.
-For the notification choose the option 'terminate' and select the SNS topic created earlier.
 
 
-5. Configure the IAM role
-The EC2 instance that will be running our Powershell cleanup script  requires permissions to access the SQS queue.  To allow this, configure a security policy for the IAM role that is attached to the instance.  Modify the policy below for the Resource ARN to match your SQS ARN.
+Prepare the Ec2 to run Powershell script:<br/>
+1. Open Windows Powershell ISE <br/>
 
-"SQS-Access": {
-    "Version": "2012-10-17",
-     "Statement": [
-        {
-         "Action": [
-            sqs:GetQueueAttributes,
-            sqs:GetQueueUrl,
-            sqs:ReceiveMessage,
-            sqs:DeleteMessage
-          ],
-          "Resource": "arn:aws:sqs:us-east-1:123456789012:SQS-InstanceTerminations",
-          "Effect": "Allow"
-          }
-      ]
-}
-
-
-
-
-Prepare the Ec2 to run Powershell script:
-1. Open Windows Powershell ISE 
-
-2. Set-AWSCredential `
-                 -AccessKey {access-key} `
-                 -SecretKey {secret-key} `
-                 -StoreAs default
+2. Set-AWSCredential `<br/>
+                 -AccessKey {access-key} `<br/>
+                 -SecretKey {secret-key} `<br/>
+                 -StoreAs default<br/>
                  
- 3. Save and Run below Powershell script
+ 3. Save and Run below Powershell script<br/>
 
-###Windows Powershell Script:
-
+### Windows Powershell Script:
 
     #Function that logs a message to a text file
     function LogMessage
