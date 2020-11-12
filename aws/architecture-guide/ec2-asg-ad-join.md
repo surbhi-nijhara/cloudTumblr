@@ -1,20 +1,21 @@
 
-The purpose of this blog is to demonstrate 
-a) how to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory.).
+The purpose of this blog is to demonstrate <br />
+a) how to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory).<br />
 b) Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
 
-The AD joining PoC is completed using SSM.
--  New instance in ASG becomes part of the AD domain.
-- SSM document retrieves the new associations.- New instance in ASG gets a new hostname
+On successul execution following is achieved: 
+- New Ec2 instance in ASG becomes part of the AD domain. A new hostname is added as AD Object.
+- AWS SSM document retrieves the new Ec2 association successfully.
+- New instance in EC2 ASG gets a new hostname. 
 - New instance can be accessed using the specified password as well as AD creds.
-I then started with the approach of removing the terminated EC2 from AD.
-The way I am approaching is as follows:
-- A terminated instance is notified and then I am implementing a powershell script which reads this notification and removes from AD.
-- This script can be set as a scheduled task.
+- If the instance in ASG is  terminated, the Hostname entry also gets removes from AD.
+
+We will see how to achieve this in two parts - Join EC2 with AD and Remove EC2 from AD.
 
 
 ### Join Approach:
-1. Mainly follow [this](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. However, while following this document, below are more details that will help achieve the result.
+1. Mainly follow [this](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. However, while following this document, below are more details that will help achieve the result faster.
+
 2. Prerequistes:<br />
    a) Create a AWS directory. This is as mentioned in the document. <br/>
    b) Create an EC2 from an AWS provided Windows Server Image, say poc-orig-inst.<br/> 
