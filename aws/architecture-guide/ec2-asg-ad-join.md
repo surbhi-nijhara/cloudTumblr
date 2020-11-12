@@ -22,15 +22,15 @@ inst-original will be also used to test the goal of the PoC i.e. joining and rem
 2) Second EC2 instance, lets tag it as **inst-custom** and will be created from the image of the inst-original. This is essentially a clone of inst-original but will be sysprepped. After sysprepped, it will lose some of the configurations done in inst-original, like this instance will not be in the AD domain.
 
 2. Steps:<br />
-   a) Create a AWS directory. Note the AD account details. An example of created directory for this blog is as follows.
+   a) Create a AWS directory. Note the AD account details. An example of created directory for this blog is as follows.<br />
    b) Launch an EC2 from an AWS/Base Custom Image and tag as **inst-golden**<br/> 
        While creating the instance provide the above directory information in EC2 launch wizard.<br />
        The first time you specify a domain in the EC2 launch wizard, the wizard generates the domain’s default SSM document. 
        The role includes the policy **AmazonEC2RoleforSSM-ASGDomainJoin** and is created as per the details in [this](https://aws.amazon.com/blogs/security/how-to- 
        configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. Refer part 2 / Step 1: Create a new IAM policy, copying 
        the AmazonEC2RoleforSSM policy
-   c) Remote Login into the launched Ec2 instance **inst-golden** using the RDP credentials.
-   d) Using 'Server Manager', select add Roles and Features, select Role-based or feature-based installation, and add following roles:
+   c) Remote Login into the launched Ec2 instance **inst-golden** using the RDP credentials.<br />
+   d) Using 'Server Manager', select add Roles and Features, select Role-based or feature-based installation, and add following roles:<br />
       - AD Domain Services. This will enable to access Active Directory Users and Computers. <br />
    e) Change the Administrator password under User Accounts.<br/>
    f) Just Disconnect and verify if you can log into the Ec2 using below accounts<br/>
@@ -51,11 +51,11 @@ inst-original will be also used to test the goal of the PoC i.e. joining and rem
     iii) Do a **Shutdown with Sysprep**.<br /> More details are [here](https://aws.amazon.com/premiumsupport/knowledge-center/sysprep-create-install-ec2-windows-amis/)
          After shutting down with sysprep, the EC2 instance as expected cannot be accessed using AD credentials. <br/>
          
-   g) Create Image of the above Ec2 instance, say **ami-custom**
-   h) We will use this image **ami-custom** in AWS Launch Configuration.
-       Optionally, an Ec2 instance can be launched from this image, and after launch you will notice:
-       - Able to login with Adminstrator and the specified password.
-       - Not able to login using AD login.
+   g) Create Image of the above Ec2 instance, say **ami-custom**<br />
+   h) We will use this image **ami-custom** in AWS Launch Configuration.<br />
+       Optionally, an Ec2 instance can be launched from this image, and after launch you will notice:<br />
+       - Able to login with Adminstrator and the specified password.<br />
+       - Not able to login using AD login.<br />
        
    
 ### Join Approach:
