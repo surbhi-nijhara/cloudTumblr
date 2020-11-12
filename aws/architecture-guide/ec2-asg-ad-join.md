@@ -1,8 +1,8 @@
 
 The purpose of this blog is to demonstrate <br />
-a) How to create a Windows Custom AMI for launching successfully in an ASG. <br />
-b) How to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory).<br />
-b) Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
+* How to create a Windows Custom AMI for launching successfully in an ASG. <br />
+* How to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory).<br />
+* Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
 
 On successul execution following is achieved: 
 - New Ec2 instance in ASG becomes part of the AD domain. A new hostname is added as AD Object.
@@ -17,38 +17,47 @@ We will then see how to achieve this in two parts - Join EC2 with AD and Remove 
 
 ### Custom Windows AMI Approach:
 We will use 2 EC2 Instances outside Autoscaling Groups
-1) This will be our EC2 instance created from an AWS/Base Custom Image. This will be futher custom configured or ensured if the required configuration for launching the EC2 in an AD domain is present. Let us tag this EC2 instance as inst-original.
-inst-original will be also used to test the goal of the PoC i.e. joining and removing the EC2, launched in ASG, in AD domain.
-2) Second EC2 instance, lets call it inst-sysprepped' and will be created from the image of the inst-original. This is essentially a clone of inst-original but will be sysprepped. After sysprepped, it will lose some of the configurations done in inst-original, like this instance will not be in the AD domain.
+1) This will be our EC2 instance created from an AWS/Base Custom Image. This will be futher custom configured or ensured if the required configuration for launching the EC2 in an AD domain is present. Let us tag this EC2 instance as **inst-golden**.
+inst-original will be also used to test the goal of the PoC i.e. joining and removing the EC2, launched in ASG, in AD domain.<br />
+2) Second EC2 instance, lets tag it as **inst-custom** and will be created from the image of the inst-original. This is essentially a clone of inst-original but will be sysprepped. After sysprepped, it will lose some of the configurations done in inst-original, like this instance will not be in the AD domain.
 
-2. Prerequistes:<br />
-   a) Create a AWS directory. 
-   b) Create an EC2 from an AWS provided Windows Server Image, say poc-orig-inst.<br/> 
-       While creating the instance provide the directory information in EC2 launch wizard. 
-   c) Remote Login into the launched Ec2 instance (poc-orig-inst)
+2. Steps:<br />
+   a) Create a AWS directory. Note the AD account details. An example of created directory for this blog is as follows.
+   b) Launch an EC2 from an AWS/Base Custom Image and tag as **inst-golden**<br/> 
+       While creating the instance provide the above directory information in EC2 launch wizard.<br />
+       The first time you specify a domain in the EC2 launch wizard, the wizard generates the domain’s default SSM document. 
+       The role includes the policy **AmazonEC2RoleforSSM-ASGDomainJoin** and is created as per the details in [this](https://aws.amazon.com/blogs/security/how-to- 
+       configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. Refer part 2 / Step 1: Create a new IAM policy, copying 
+       the AmazonEC2RoleforSSM policy
+   c) Remote Login into the launched Ec2 instance **inst-golden** using the RDP credentials.
    d) Using 'Server Manager', select add Roles and Features, select Role-based or feature-based installation, and add following roles:
-      - AD Domain Services. This will enable to use Active Directory Users and Computers. <br />
-   e) Also change the Administrator password.<br/>
-   f) Just disconnect and check if you can log into the Ec2 using<br/>
-       i) User Administrator and new changed password.<br/>
-      ii) User AD domain and its password.<br/>
-   g) When logged in with AD login, you will be to access Active Directory Users and Computers and see the OU=glad and under it use Users and Computers.<br/>
-   f) Login back with user:Administrator and.<br />
-   g) SSM should be installed in the instance. 
-   h) Add Permission: AmazonSSMDirectoryServiceAccess to for SSM to communicate with AD. 
+      - AD Domain Services. This will enable to access Active Directory Users and Computers. <br />
+   e) Change the Administrator password under User Accounts.<br/>
+   f) Just Disconnect and verify if you can log into the Ec2 using below accounts<br/>
+       i) Administrator and the new changed password.<br/>
+      ii) AD account.<br/>
+   g) When logged in with AD login, you will be able to access Active Directory Users and Computers and see OU=**glad** and under it Users and Computers.<br/>
+      Under Computers, you will be able to see the hostname of **inst-golden**. <br/>
+   f) Login back with Administrator account<br />
+   g) Ensure SSM is installed in the instance. 
+   h) Ensure the policy: **AmazonSSMDirectoryServiceAccess** for SSM to communicate with AD, is added to the EC2 IAM role. 
       Complete steps can be seen [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-instance-profile.html)
    i) Run the following command in Windows Powershell to schedule a Windows Task that will run the User data on next boot:
       ###### Command
        C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
-   j)open  EC2Launch v2
-      i) Ensure is unchecked.<br />
-     ii) Password - Specify<br />
-    iii) Do a Shutdown with SysPrep using EC2Launch Settings.<br />
+   j)Install (if not installed) and Open EC2Launch v2.
+      i) Ensure **Set Computer Name** is unchecked.<br /> This will enable to launch EC2 instances with unique host names.
+     ii) Administrator Password - Choose **Specify** and provide a password.<br />
+    iii) Do a **Shutdown with Sysprep**.<br /> More details are [here](https://aws.amazon.com/premiumsupport/knowledge-center/sysprep-create-install-ec2-windows-amis/)
          After shutting down with sysprep, the EC2 instance as expected cannot be accessed using AD credentials. <br/>
          
-   g) Create Image of the above Ec2 instance, say poc-ami
-   h) Use this image in AWS Launch Configuration.
-
+   g) Create Image of the above Ec2 instance, say **ami-custom**
+   h) We will use this image **ami-custom** in AWS Launch Configuration.
+       Optionally, an Ec2 instance can be launched from this image, and after launch you will notice:
+       - Able to login with Adminstrator and the specified password.
+       - Not able to login using AD login.
+       
+   
 ### Join Approach:
 1. Mainly follow [this](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. However, while following this document, below are more details that will help achieve the result faster.
 
@@ -227,6 +236,8 @@ https://stackoverflow.com/questions/36496347/unable-to-get-password-for-the-inst
      <persist>true</persist>
      
   ##### 
+  
+  Create Cusom Windows AMI - https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/Creating_EBSbacked_WinAMI.html#ami-create-standard
 
 
 
