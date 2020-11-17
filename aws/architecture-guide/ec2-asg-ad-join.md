@@ -5,8 +5,8 @@ The purpose of this blog is to demonstrate <br />
 * Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
 
 On successul execution following is achieved: 
-- New Ec2 instance in ASG becomes part of the AD domain. A new hostname is added as AD Object.
-- AWS SSM document retrieves the new Ec2 association successfully.
+- New EC2 instance in ASG becomes part of the AD domain. A new hostname is added as AD Object.
+- AWS SSM document retrieves the new EC2 association successfully.
 - New instance in EC2 ASG gets a new hostname. 
 - New instance can be accessed using the specified password as well as AD creds.
 - If the instance in ASG is  terminated, the Hostname entry also gets removes from AD.
@@ -23,12 +23,14 @@ inst-original will be also used to test the goal of the PoC i.e. joining and rem
 
 ##### Steps:
    a) Create a AWS directory. Note the AD account details. An example of created directory for this blog is as follows.<br />
+      ![\[Snapshot for 04-example-directoryservice:\]]()
    b) Launch an EC2 from an AWS/Base Custom Image and tag as **inst-golden**<br/> 
        - While creating the instance provide the above directory information in EC2 launch wizard.<br />
        The first time you specify a domain in the EC2 launch wizard, the wizard generates the domain’s default SSM document. <br />
        - The role to be applied needs to includes the policy **AmazonEC2RoleforSSM-ASGDomainJoin** and is created as per the details in [this]         
        (https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. Refer part 
        2 / Step 1: Create a new IAM policy, copying the AmazonEC2RoleforSSM policy. <br />
+       ![\[Snapshot for 06-example-Ec2-domainjoindirectory:\]]()
    c) Remote Login into the launched Ec2 instance **inst-golden** using the RDP credentials.<br />
    d) Using 'Server Manager', select add Roles and Features, select Role-based or feature-based installation, and add following roles:<br />
       - AD Domain Services. This will enable to access Active Directory Users and Computers. <br />
@@ -38,6 +40,7 @@ inst-original will be also used to test the goal of the PoC i.e. joining and rem
       ii) AD account.<br/>
    g) When logged in with AD login, you will be able to access Active Directory Users and Computers and see OU=**glad** and under it Users and Computers.<br/>
       Under Computers, you will be able to see the hostname of **inst-golden**. <br/>
+      ![\[Snapshot for 07-example-windows-ad:\]]()
    f) Login back with Administrator account<br />
    g) Ensure SSM is installed in the instance. <br />
    h) Ensure the policy: **AmazonSSMDirectoryServiceAccess** for SSM to communicate with AD, is added to the EC2 IAM role. 
@@ -46,6 +49,7 @@ inst-original will be also used to test the goal of the PoC i.e. joining and rem
       ###### Command
        C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
    j)Install (if not installed) and Open EC2Launch v2.<br />
+      ![\[Snapshot for 05-example-EC2LaunchSettings:\]]()
       i) Ensure **Set Computer Name** is unchecked.<br /> This will enable to launch EC2 instances with unique host names.<br />
      ii) Administrator Password - Choose **Specify** and provide a password.<br />
     iii) Do a **Shutdown with Sysprep**.<br /> More details are [here](https://aws.amazon.com/premiumsupport/knowledge-center/sysprep-create-install-ec2-windows-amis/)
@@ -73,8 +77,15 @@ We mainly follow the steps in the doucment[here](https://aws.amazon.com/blogs/se
        <persist>true</persist>
  3. Set Metadata Accessible=Enabled. 
  4. Create and Autoscaling Group from the created Launch Configuration.<br />
-    This will launch the instances.
-   
+    Tag the instances according to your policies or as simple as **autoscale**. The ASG will launch the desired instances.
+ 5. Verify that the launched instances are joined to the AD.
+    - Log into the instance  using
+      i) Administrator and the password (specified earlier).<br/>
+     ii) AD account.<br/>
+    - Use following SSM commands to see that EC2 is successfully associated.
+    #### Commands
+        aws ssm list-associations --association-filter-list key=Name,value=awsconfig_Domain_d-9a672bcc48_glad.test.com
+
  
  
 ### Remove Approach:<br/>
@@ -215,7 +226,9 @@ Prepare the Ec2 to run Powershell script:<br/>
      }
   
 
-
+ - Use following SSM commands to verify that EC2 hostname is successfully dis-associated.
+    #### Commands
+        aws ssm list-associations --association-filter-list key=Name,value=awsconfig_Domain_d-9a672bcc48_glad.test.com
 
 4. Schedule Task:
 
@@ -226,7 +239,7 @@ http://thesysadminswatercooler.blogspot.com/2016/01/aws-using-sqs-to-cleanup-act
 
 
 
-SOme Troubleshooting
+Some Troubleshooting
 Hidden files:
 https://www.bitdefender.com/consumer/support/answer/1940/#:~:text=Click%20the%20Start%20button%2C%20then%20select%20Control%20Panel.&text=Click%20on%20Appearance%20and%20Personalization.&text=Select%20Folder%20Options%2C%20then%20select%20the%20View%20tab.&text=%E2%80%A2-,Under%20Advanced%20settings%2C%20select%20Show%20hidden%20files%2C%20folders%2C,and%20drives%2C%20then%20click%20Apply.
 
@@ -235,12 +248,16 @@ https://aws.amazon.com/premiumsupport/knowledge-center/systems-manager-ec2-insta
 
 Password of AMI issue:
 https://stackoverflow.com/questions/36496347/unable-to-get-password-for-the-instance-created-from-ami#:~:text=Password%20is%20not%20available.,the%20default%20password%20has%20changed.&text=If%20you%20have%20forgotten%20your,for%20a%20Windows%20Server%20Instance.
-
-
-     
+   
   ##### 
   
   Create Cusom Windows AMI - https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/Creating_EBSbacked_WinAMI.html#ami-create-standard
+  
+  #### Useful SSM Commands
+        aws ssm delete-document --name awsconfig_Domain_d-9a672bcc48_glad.test.com
+        aws ssm create-document --content file://<filename>.json --name awsconfig_Domain_d-9a672bcc48_glad.test.com
+        aws ssm get-document --name awsconfig_Domain_d-9a672bcc48_glad.test.com
+
 
 
 
