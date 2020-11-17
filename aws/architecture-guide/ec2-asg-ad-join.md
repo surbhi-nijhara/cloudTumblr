@@ -73,7 +73,7 @@ We mainly follow the steps in the doucment[here](https://aws.amazon.com/blogs/se
        <powershell>
        Set-DefaultAWSRegion -Region us-east-2
        Set-Variable -name instance_id -value (Invoke-Restmethod -uri http://169.254.169.254/latest/meta-data/instance-id)
-       New-SSMAssociation -InstanceId $instance_id -Name "awsconfig_Domain_d-9a672bcc48_glad.test.com"
+       New-SSMAssociation -InstanceId $instance_id -Name "awsconfig_Domain_<ds-id>_glad.test.com"
        </powershell>
        <persist>true</persist>
  3. Set Metadata Accessible=Enabled. 
@@ -85,7 +85,7 @@ We mainly follow the steps in the doucment[here](https://aws.amazon.com/blogs/se
      ii) AD account.<br/>
     - Use following SSM commands to see that EC2 is successfully associated.
     #### Commands
-        aws ssm list-associations --association-filter-list key=Name,value=awsconfig_Domain_d-9a672bcc48_glad.test.com
+        aws ssm list-associations --association-filter-list key=Name,value=awsconfig_Domain_<ds-id>_glad.test.com
 
  
  
@@ -112,10 +112,10 @@ Modify with your SNS ARN and the SQS ARNs.<br/>
           "Effect": "Allow",
           "Principal": "*",
           "Action": "SQS:SendMessage",
-          "Resource": "arn:aws:sqs:us-east-2:126127892668:poc-removead",
+          "Resource": "arn:aws:sqs:us-east-2:<account-id>:poc-removead",
           "Condition": {
           "ArnEquals": {
-            "aws:SourceArn": "arn:aws:sns:us-east-2:126127892668:poc-removead"
+            "aws:SourceArn": "arn:aws:sns:us-east-2:<account-id>:poc-removead"
           }
         }
       }
@@ -132,21 +132,22 @@ For the notification choose the option 'terminate' and select the SNS topic crea
 5. Configure the IAM role<br/>
 The EC2 instance that will be running our Powershell cleanup script  requires permissions to access the SQS queue.  To allow this, configure a security policy for the IAM role that is attached to the instance.  Modify the policy below for the Resource ARN to match your SQS ARN.<br/>
 
-    "SQS-Access": {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-             "Action": [
-               sqs:GetQueueAttributes,
-               sqs:GetQueueUrl,
-               sqs:ReceiveMessage,
-               sqs:DeleteMessage
-              ],
-              "Resource": "arn:aws:sqs:us-east-1:123456789012:SQS-InstanceTerminations",
-              "Effect": "Allow"
-          }
-        ]
-    }
+    {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "sqs:DeleteMessage",
+                "sqs:GetQueueUrl",
+                "sqs:ReceiveMessage",
+                "sqs:GetQueueAttributes"
+            ],
+            "Resource": "arn:aws:sqs:us-east-2:<account-id>:poc-removead"
+        }
+      ]
+     }
 
 
 
