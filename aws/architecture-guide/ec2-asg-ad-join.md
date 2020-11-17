@@ -5,7 +5,7 @@ The purpose of this blog is to demonstrate <br />
 * How to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory).<br />
 * Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
 
-On successul execution following is achieved: 
+On successful execution following is achieved: 
 - New EC2 instance in ASG becomes part of the AD domain. A new hostname is added as AD Object.
 - AWS SSM document retrieves the new EC2 association successfully.
 - New instance in EC2 ASG gets a new hostname. 
@@ -18,9 +18,9 @@ We will then see how to achieve this in two parts - Join EC2 with AD and Remove 
 
 ### Custom Windows AMI Approach:
 We will use 2 EC2 Instances outside Autoscaling Groups
-1) This will be our EC2 instance created from an AWS/Base Custom Image. This will be futher custom configured or ensured if the required configuration for launching the EC2 in an AD domain is present. Let us tag this EC2 instance as **inst-golden**.
-inst-original will be also used to test the goal of the PoC i.e. joining and removing the EC2, launched in ASG, in AD domain.<br />
-2) Second EC2 instance, lets tag it as **inst-custom** and will be created from the image of the inst-original. This is essentially a clone of inst-original but will be sysprepped. After sysprepped, it will lose some of the configurations done in inst-original, like this instance will not be in the AD domain.
+1) This will be our EC2 instance created from an AWS/Base Custom Image. This will be further custom configured or ensured if the required configuration is present for launching EC2 in an AD domain. Let us tag this EC2 instance as **inst-golden**.
+**inst-golden** will be also used to test the goal of the PoC i.e. joining and removing the EC2, launched in ASG, in AD domain.<br />
+2) Second EC2 instance, tagged as **inst-custom** and will be created from the image of the inst-original. This is essentially a clone of inst-original but will be sysprepped. After sysprepped, it will lose some of the configurations done in inst-original, like this instance will not be in the AD domain.
 
 ##### Steps:
    a) Create a AWS directory. Note the AD account details. An example of created directory for this blog is as follows.<br />
