@@ -261,6 +261,23 @@ https://stackoverflow.com/questions/36496347/unable-to-get-password-for-the-inst
         aws ssm get-document --name awsconfig_Domain_<ds-id>_glad.test.com
         
  * Sample ssm document 
+ #### json
+    {
+    "schemaVersion": "1.0",
+    "description": "Automatic Domain Join Configuration created by EC2 Console.",
+    "runtimeConfig": {
+    "aws:domainJoin": {
+      "properties": {
+        "directoryId": "<ds-id>",
+        "directoryName": "glad.test.com",
+        "dnsIpAddresses": [
+          "10.1.1.13",
+          "10.1.2.12"
+         ]
+       }
+      }
+     }
+    }
 
 
 
