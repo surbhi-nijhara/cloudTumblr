@@ -56,7 +56,7 @@ We will use 2 EC2 Instances outside Autoscaling Groups
     iii) Do a **Shutdown with Sysprep**.<br /> More details are [here](https://aws.amazon.com/premiumsupport/knowledge-center/sysprep-create-install-ec2-windows-amis/)
     After shutting down with sysprep, the EC2 instance as expected cannot be accessed using AD credentials. <br/>
          
-   g) Create Image of the above Ec2 instance, say **ami-custom**<br />
+   g) Create Image of the above Ec2 instance, say **ami-custom**.<br />
    h) We will use this image **ami-custom** in AWS Launch Configuration.<br />
        Optionally, an Ec2 instance can be launched from this image, and after launch you will notice:<br />
        - Able to login with Adminstrator and the specified password.<br />
@@ -160,7 +160,7 @@ Prepare the Ec2 to run Powershell script:<br/>
                  -SecretKey {secret-key} `<br/>
                  -StoreAs default<br/>
                  
- 3. Save and Run below Powershell script<br/>
+ 3. Save and Run below Powershell script from a on-asg instanc and which is directory joined e like **inst-golden**<br/>
 
 ### Windows Powershell Script:
 
@@ -233,32 +233,34 @@ Prepare the Ec2 to run Powershell script:<br/>
         aws ssm list-associations --association-filter-list key=Name,value=awsconfig_Domain_d-9a672bcc48_glad.test.com
 
 4. Schedule Task:
-
-[TBD]
-
-[Reference](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/)
-http://thesysadminswatercooler.blogspot.com/2016/01/aws-using-sqs-to-cleanup-active.html
+   The abover powershell script is recommended to be scheduled as a task that runs at a business suitable interbval
 
 
 
-Some Troubleshooting
-Hidden files:
+### Further References
+
+1. Approach and script to removed the terminated ADs is [here](http://thesysadminswatercooler.blogspot.com/2016/01/aws-using-sqs-to-cleanup-active.html).
+In this article, the powershell script does not work as is today and need some modifcations. The modified script is as posted above.
+
+2. Troubleshooting artiles that may help in executing the mentioned steps of AD joining task.
+* Hidden files:
 https://www.bitdefender.com/consumer/support/answer/1940/#:~:text=Click%20the%20Start%20button%2C%20then%20select%20Control%20Panel.&text=Click%20on%20Appearance%20and%20Personalization.&text=Select%20Folder%20Options%2C%20then%20select%20the%20View%20tab.&text=%E2%80%A2-,Under%20Advanced%20settings%2C%20select%20Show%20hidden%20files%2C%20folders%2C,and%20drives%2C%20then%20click%20Apply.
 
-2. If the Ec2 association is not seen in SSM document, validate all teh required configuration in below article.
+* If the Ec2 association is not seen in SSM document, validate all the required configuration in below article.
 https://aws.amazon.com/premiumsupport/knowledge-center/systems-manager-ec2-instance-not-appear/
 
-Password of AMI issue:
+* Password of AMI issue:
 https://stackoverflow.com/questions/36496347/unable-to-get-password-for-the-instance-created-from-ami#:~:text=Password%20is%20not%20available.,the%20default%20password%20has%20changed.&text=If%20you%20have%20forgotten%20your,for%20a%20Windows%20Server%20Instance.
    
-  ##### 
+* Create Cusom Windows AMI as (here)[https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/Creating_EBSbacked_WinAMI.html#ami-create-standard]
   
-  Create Cusom Windows AMI - https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/Creating_EBSbacked_WinAMI.html#ami-create-standard
-  
-  #### Useful SSM Commands
-        aws ssm delete-document --name awsconfig_Domain_d-9a672bcc48_glad.test.com
-        aws ssm create-document --content file://<filename>.json --name awsconfig_Domain_d-9a672bcc48_glad.test.com
-        aws ssm get-document --name awsconfig_Domain_d-9a672bcc48_glad.test.com
+* Useful SSM Commands
+  #### commands
+        aws ssm delete-document --name awsconfig_Domain_<ds-id>_glad.test.com
+        aws ssm create-document --content file://<filename>.json --name awsconfig_Domain_<ds-id>_glad.test.com
+        aws ssm get-document --name awsconfig_Domain_<ds-id>_glad.test.com
+        
+ * Sample ssm document 
 
 
 
