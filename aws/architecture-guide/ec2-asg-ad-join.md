@@ -23,14 +23,14 @@ inst-original will be also used to test the goal of the PoC i.e. joining and rem
 
 ##### Steps:
    a) Create a AWS directory. Note the AD account details. An example of created directory for this blog is as follows.<br />
-      ![\[Snapshot for 04-example-directoryservice:\]]()
+      ![\[Snapshot for 04-example-directoryservice:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/ec2-windows-ad-join/aws/diag_source/04-example-directoryservice.png?raw=true)
    b) Launch an EC2 from an AWS/Base Custom Image and tag as **inst-golden**<br/> 
        - While creating the instance provide the above directory information in EC2 launch wizard.<br />
        The first time you specify a domain in the EC2 launch wizard, the wizard generates the domain’s default SSM document. <br />
        - The role to be applied needs to includes the policy **AmazonEC2RoleforSSM-ASGDomainJoin** and is created as per the details in [this]         
        (https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. Refer part 
        2 / Step 1: Create a new IAM policy, copying the AmazonEC2RoleforSSM policy. <br />
-       ![\[Snapshot for 06-example-Ec2-domainjoindirectory:\]]()
+       ![\[Snapshot for 06-example-Ec2-domainjoindirectory:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/ec2-windows-ad-join/aws/diag_source/06-example-Ec2-domainjoindirectory.png?raw=true)
    c) Remote Login into the launched Ec2 instance **inst-golden** using the RDP credentials.<br />
    d) Using 'Server Manager', select add Roles and Features, select Role-based or feature-based installation, and add following roles:<br />
       - AD Domain Services. This will enable to access Active Directory Users and Computers. <br />
@@ -40,7 +40,7 @@ inst-original will be also used to test the goal of the PoC i.e. joining and rem
       ii) AD account.<br/>
    g) When logged in with AD login, you will be able to access Active Directory Users and Computers and see OU=**glad** and under it Users and Computers.<br/>
       Under Computers, you will be able to see the hostname of **inst-golden**. <br/>
-      ![\[Snapshot for 07-example-windows-ad:\]]()
+      ![\[Snapshot for 07-example-windows-ad:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/ec2-windows-ad-join/aws/diag_source/07-example-windows-ad.png?raw=true)
    f) Login back with Administrator account<br />
    g) Ensure SSM is installed in the instance. <br />
    h) Ensure the policy: **AmazonSSMDirectoryServiceAccess** for SSM to communicate with AD, is added to the EC2 IAM role. 
@@ -49,7 +49,7 @@ inst-original will be also used to test the goal of the PoC i.e. joining and rem
       ###### Command
        C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
    j)Install (if not installed) and Open EC2Launch v2.<br />
-      ![\[Snapshot for 05-example-EC2LaunchSettings:\]]()
+      ![\[Snapshot for 05-example-EC2LaunchSettings:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/ec2-windows-ad-join/aws/diag_source/05-example-EC2LaunchSettings.png?raw=true)
       i) Ensure **Set Computer Name** is unchecked.<br /> This will enable to launch EC2 instances with unique host names.<br />
      ii) Administrator Password - Choose **Specify** and provide a password.<br />
     iii) Do a **Shutdown with Sysprep**.<br /> More details are [here](https://aws.amazon.com/premiumsupport/knowledge-center/sysprep-create-install-ec2-windows-amis/)
