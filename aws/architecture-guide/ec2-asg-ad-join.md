@@ -5,22 +5,22 @@ The purpose of this blog is to demonstrate <br />
 * How to join EC2 launched in an Autoscaling group automatically into an existing AD(Active Directory).<br />
 * Further to above, if an EC2 within ASG gets terminated, then the EC2 hostname added as AD(Active Directory) object should be removed from Active Directory.
 
-On successful execution following is achieved: 
+On successful execution of the following steps, following will be achieved:
 - New EC2 instance in ASG becomes part of the AD domain. A new hostname is added as AD Object.
 - AWS SSM document retrieves the new EC2 association successfully.
 - New instance in EC2 ASG gets a new hostname. 
-- New instance can be accessed using the specified password as well as AD creds.
-- If the instance in ASG is  terminated, the Hostname entry also gets removes from AD.
+- New instance can be accessed using the specified password as well as AD credentials.
+- If the instance in ASG is  terminated, the hostname entry also gets removes from AD.
 
-Let us first create a custom Windows AMI <br />
+Let us first create a custom Windows AMI. <br />
 We will then see how to achieve this in two parts - Join EC2 with AD and Remove EC2 from AD.
 
 
 ### Custom Windows AMI Approach:
 We will use 2 EC2 Instances outside Autoscaling Groups
-1) This will be our EC2 instance created from an AWS/Base Custom Image. This will be further custom configured or ensured if the required configuration is present for launching EC2 in an AD domain. Let us tag this EC2 instance as **inst-golden**.
-**inst-golden** will be also used to test the goal of the PoC i.e. joining and removing the EC2, launched in ASG, in AD domain.<br />
-2) Second EC2 instance, tagged as **inst-custom** and will be created from the image of the inst-original. This is essentially a clone of inst-original but will be sysprepped. After sysprepped, it will lose some of the configurations done in inst-original, like this instance will not be in the AD domain.
+1) First EC2 instance will be created from a standard AWS or you can create from a custom golden image. This will be further custom configured or ensured if the required configuration is present for launching EC2 in an AD domain. Let us tag this EC2 instance as **inst-golden**.
+**inst-golden** will be also used to test the goal of the PoC i.e. joining with AD and removing from the AD.<br />
+2) Second EC2 instance, tagged as **inst-custom** will be created from the image of the **inst-golden**. This is essentially a clone of **inst-golden** but will be sysprepped. After sysprep, it will lose some of the configurations done in inst-original, for example after sysprep, this instance will no more be in the AD domain.
 
 ##### Steps:
    a) Create a AWS directory. Note the AD account details. An example of created directory for this blog is as follows.<br />
@@ -28,13 +28,14 @@ We will use 2 EC2 Instances outside Autoscaling Groups
    b) Launch an EC2 from an AWS/Base Custom Image and tag as **inst-golden**<br/> 
        - While creating the instance provide the above directory information in EC2 launch wizard.<br />
        The first time you specify a domain in the EC2 launch wizard, the wizard generates the domain’s default SSM document. <br />
-       - The role to be applied needs to includes the policy **AmazonEC2RoleforSSM-ASGDomainJoin** and is created as per the details in [this]         
+       - The role to be applied needs to include the policy **AmazonEC2RoleforSSM-ASGDomainJoin** and is created as per the details in [this]         
        (https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/) document. Refer part 
        2 / Step 1: Create a new IAM policy, copying the AmazonEC2RoleforSSM policy. <br />
        ![\[Snapshot for 06-example-Ec2-domainjoindirectory:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/ec2-windows-ad-join/aws/diag_source/06-example-Ec2-domainjoindirectory.png?raw=true)
    c) Remote Login into the launched Ec2 instance **inst-golden** using the RDP credentials.<br />
    d) Using 'Server Manager', select add Roles and Features, select Role-based or feature-based installation, and add following roles:<br />
       - AD Domain Services. This will enable to access Active Directory Users and Computers. <br />
+      ![\[Snapshot for 08-example-Add-Roles:\]](?raw=true)
    e) Change the Administrator password under User Accounts.<br/>
    f) Just Disconnect and verify if you can log into the Ec2 using below accounts<br/>
        i) Administrator and the new changed password.<br/>
@@ -46,13 +47,13 @@ We will use 2 EC2 Instances outside Autoscaling Groups
    g) Ensure SSM is installed in the instance. <br />
    h) Ensure the policy: **AmazonSSMDirectoryServiceAccess** for SSM to communicate with AD, is added to the EC2 IAM role. 
       Complete steps can be seen [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-instance-profile.html)
-   i) Run the following command in Windows Powershell to schedule a Windows Task that will run the User data on next boot:
-      ###### Command
-       C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
+   i) Run the following command in Windows Powershell to schedule a Windows Task that will run the User data on next boot:<br />
+   #### Command
+         C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule
    j)Install (if not installed) and Open EC2Launch v2.<br />
       ![\[Snapshot for 05-example-EC2LaunchSettings:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/ec2-windows-ad-join/aws/diag_source/05-example-EC2LaunchSettings.png?raw=true)
       i) Ensure **Set Computer Name** is unchecked.<br /> This will enable to launch EC2 instances with unique host names.<br />
-     ii) Administrator Password - Choose **Specify** and provide a password.<br />
+     ii) Administrator Password. Choose **Specify** and provide a password.<br />
     iii) Do a **Shutdown with Sysprep**.<br /> More details are [here](https://aws.amazon.com/premiumsupport/knowledge-center/sysprep-create-install-ec2-windows-amis/)
     After shutting down with sysprep, the EC2 instance as expected cannot be accessed using AD credentials. <br/>
          
@@ -64,7 +65,7 @@ We will use 2 EC2 Instances outside Autoscaling Groups
        
    
 ### Join Approach:
-We mainly follow the steps in the doucment[here](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/). However, while following this document, below are more details that will help achieve the result faster.
+We mainly follow the steps in the doucment[here](https://aws.amazon.com/blogs/security/how-to-configure-your-ec2-instances-to-automatically-join-a-microsoft-active-directory-domain/). However, while following this document, below are more details that will help achieve the results fast.
 
 ##### Steps:
 1. Under launch Configurations, Use **ami-custom**. Fill in the obvious details.
@@ -87,19 +88,19 @@ We mainly follow the steps in the doucment[here](https://aws.amazon.com/blogs/se
     #### Commands
         aws ssm list-associations --association-filter-list key=Name,value=awsconfig_Domain_<ds-id>_glad.test.com
 
- 
- 
 ### Remove Approach:<br/>
+The approach to remove the EC2 from the domain directory is to identify which EC2 has been terminated. To identify the same, configure the Auto Scaling group to use the **autoscaling: EC2_INSTANCE_TERMINATE** notification type, so that after the Auto Scaling group terminates an instance, it sends a notification. The recipient/subscriber of the notifications, in our case, will be a SQS topic. The SQS queue will then be polled for the messages, the EC2 instance id will be retrieved and the associated hostname will be removed from AD.
 
 1. Create the SQS queue<br/><br/>
-Create a new SQS queue.   We will set the permissions in a later step, after we've created the SNS topic.<br/>
-Message retention period should be configured to a value greater than the frequency of the scheduled powershell script.<br/>
 
 2. Create the SNS topic<br/>
 Create a new SNS topic and add a subscription to the SNS topic selecting 'Amazon SQS' as the endpoint, ie: arn:aws:sqs:us-east-2:{aws-account-id}:poc-removead<br/>
 
 3. Configure providing permission to SNS to be allowed to send the Ec2 Termination message to SQS queue<br/>
-In the SQS queue  created in the prior step and select the 'Access Policy' tab.  Add below policy <br/>
+In the SQS queue  created in the prior step and select the 'Access Policy' tab. 
+![\[Snapshot for 09-example-SQL-AccessPolicy:\]](?raw=true)
+
+4. Add below policy <br/>
 Modify with your SNS ARN and the SQS ARNs.<br/>
 
    
@@ -124,13 +125,13 @@ Modify with your SNS ARN and the SQS ARNs.<br/>
        
 
 
-4. Configure the notification for the Auto Scaling Group<br/>
+5. Configure the notification for the Auto Scaling Group<br/>
 Select your Auto Scaling Group and choose the 'Notifications' tab and then 'Create notification'.<br/>
 For the notification choose the option 'terminate' and select the SNS topic created earlier.<br/>
 
 
-5. Configure the IAM role<br/>
-The EC2 instance that will be running our Powershell cleanup script  requires permissions to access the SQS queue.  To allow this, configure a security policy for the IAM role that is attached to the instance.  Modify the policy below for the Resource ARN to match your SQS ARN.<br/>
+6. Configure the IAM role<br/>
+The EC2 instance that will be running a Powershell script to remove the instance, requires permissions to access the SQS queue. To allow this, add below policy.<br/>
 
     {
     "Version": "2012-10-17",
@@ -152,15 +153,16 @@ The EC2 instance that will be running our Powershell cleanup script  requires pe
 
 
 
-Prepare the Ec2 to run Powershell script:<br/>
-1. Open Windows Powershell ISE <br/>
+7. Prepare the Ec2 to run Powershell script:<br/>
+* Open Windows Powershell ISE <br/>
 
-2. Set-AWSCredential `<br/>
+* Set-AWSCredential `<br/>
                  -AccessKey {access-key} `<br/>
                  -SecretKey {secret-key} `<br/>
                  -StoreAs default<br/>
+   *Note: Adding CLI credentials is just for prototype purpose. Better strategy to apply temporary tokens should be used in production enviornment.*
                  
- 3. Save and Run below Powershell script from a on-asg instanc and which is directory joined e like **inst-golden**<br/>
+8. Save and Run below Powershell script from a on-asg instanc and which is directory joined e like **inst-golden**<br/>
 
 ### Windows Powershell Script:
 
@@ -232,7 +234,7 @@ Prepare the Ec2 to run Powershell script:<br/>
     #### Commands
         aws ssm list-associations --association-filter-list key=Name,value=awsconfig_Domain_d-9a672bcc48_glad.test.com
 
-4. Schedule Task:
+9. Schedule Task:
    The abover powershell script is recommended to be scheduled as a task that runs at a business suitable interbval
 
 
