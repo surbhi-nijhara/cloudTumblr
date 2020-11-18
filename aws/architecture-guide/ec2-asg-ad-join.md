@@ -35,7 +35,7 @@ We will use 2 EC2 Instances outside Autoscaling Groups
    c) Remote Login into the launched Ec2 instance **inst-golden** using the RDP credentials.<br />
    d) Using 'Server Manager', select add Roles and Features, select Role-based or feature-based installation, and add following roles:<br />
       - AD Domain Services. This will enable to access Active Directory Users and Computers. <br />
-      ![\[Snapshot for 08-example-Add-Roles:\]](?raw=true)
+      ![\[Snapshot for 08-example-add-server-roles:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/ec2-windows-ad-join/aws/diag_source/08-example-add-server-roles.png?raw=true)
    e) Change the Administrator password under User Accounts.<br/>
    f) Just Disconnect and verify if you can log into the Ec2 using below accounts<br/>
        i) Administrator and the new changed password.<br/>
@@ -98,7 +98,7 @@ Create a new SNS topic and add a subscription to the SNS topic selecting 'Amazon
 
 3. Configure providing permission to SNS to be allowed to send the Ec2 Termination message to SQS queue<br/>
 In the SQS queue  created in the prior step and select the 'Access Policy' tab. 
-![\[Snapshot for 09-example-SQL-AccessPolicy:\]](?raw=true)
+![\[Snapshot for 09-example-sqs-access-policy:\]](https://github.com/surbhi-nijhara/cloudTumblr/blob/ec2-windows-ad-join/aws/diag_source/09-example-sqs-access-policy.png?raw=true)
 
 4. Add below policy <br/>
 Modify with your SNS ARN and the SQS ARNs.<br/>
