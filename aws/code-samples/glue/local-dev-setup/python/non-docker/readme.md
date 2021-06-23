@@ -8,6 +8,6 @@
 5. A file glue-vars.sh will be generated in the same directory from where glue-local-dev-setup.sh is execute.
 6. Run source glue-vars.sh
 7. Create a sample python script
-8. Run aws-glue-libs/bin/gluesparksubmit <some-sript.py> --JOB_NAME <some-job-name>  
+8. Run aws-glue-libs/bin/gluesparksubmit {some-sript.py} --JOB_NAME {some-job-name}  
 
 
