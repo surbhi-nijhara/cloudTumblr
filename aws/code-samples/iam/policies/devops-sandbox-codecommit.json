@@ -1,0 +1,59 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "codecommit:*",
+                "codeartifact:*",
+                "codestar-notifications:List*",
+                "codestar-notifications:Create*",
+                "access-analyzer:List*",
+                "codedeploy:*",
+                "cloud9:Describe*",
+                "cloudformation:*"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "ForAnyValue:StringEquals": {
+                    "aws:RequestedRegion": "us-east-1"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetRole",
+                "iam:PassRole"
+            ],
+            "Resource": [
+                "arn:aws:iam::108400449826:role/CodeBuildServiceRole",
+                "arn:aws:iam::108400449826:role/GLCodeDeployServiceRole",
+                "arn:aws:iam::108400449826:role/GLCodeDeployServiceRoleForLambda",
+                "arn:aws:iam::108400449826:role/GLLambdaServiceRole",
+                "arn:aws:iam::108400449826:role/GLCodePipelineServiceRole"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateRole",
+                "iam:PassRole",
+                "iam:AttachRolePolicy"
+            ],
+            "Resource": [
+                "arn:aws:iam::108400449826:role/service-role/cwe-role-us-east-1-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreatePolicy",
+                "iam:CreatePolicyVersion",
+                "iam:DeletePolicyVersion"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

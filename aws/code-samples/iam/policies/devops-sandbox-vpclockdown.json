@@ -1,0 +1,26 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "ec2:RunInstances",
+            "Resource": [
+                "arn:aws:ec2:us-east-1:108400449826:subnet/subnet-0af2bbe76d51ed8b8",
+                "arn:aws:ec2:*:108400449826:network-interface/*",
+                "arn:aws:ec2:*:108400449826:instance/*",
+                "arn:aws:ec2:*:108400449826:security-group/*",
+                "arn:aws:ec2:*:108400449826:volume/*",
+                "arn:aws:ec2:*::image/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "ec2:Vpc": "arn:aws:ec2:us-east-1:108400449826:vpc/vpc-0425bfa17c766591a"
+                },
+                "BoolIfExists": {
+                    "aws:MultiFactorAuthPresent": "true"
+                }
+            }
+        }
+    ]
+}
