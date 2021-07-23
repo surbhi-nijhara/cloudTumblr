@@ -28,11 +28,11 @@
                 "iam:PassRole"
             ],
             "Resource": [
-                "arn:aws:iam::108400449826:role/CodeBuildServiceRole",
-                "arn:aws:iam::108400449826:role/GLCodeDeployServiceRole",
-                "arn:aws:iam::108400449826:role/GLCodeDeployServiceRoleForLambda",
-                "arn:aws:iam::108400449826:role/GLLambdaServiceRole",
-                "arn:aws:iam::108400449826:role/GLCodePipelineServiceRole"
+                "arn:aws:iam::xxxx:role/CodeBuildServiceRole",
+                "arn:aws:iam::xxxx:role/GLCodeDeployServiceRole",
+                "arn:aws:iam::xxxx:role/GLCodeDeployServiceRoleForLambda",
+                "arn:aws:iam::xxxx:role/GLLambdaServiceRole",
+                "arn:aws:iam::xxxx:role/GLCodePipelineServiceRole"
             ]
         },
         {
@@ -43,7 +43,7 @@
                 "iam:AttachRolePolicy"
             ],
             "Resource": [
-                "arn:aws:iam::108400449826:role/service-role/cwe-role-us-east-1-*"
+                "arn:aws:iam::xxxx:role/service-role/cwe-role-us-east-1-*"
             ]
         },
         {
