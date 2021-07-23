@@ -7,7 +7,7 @@
                 "iam:GetRole",
                 "iam:PassRole"
             ],
-            "Resource": "arn:aws:iam::108400449826:role/AWSRoleforEC2*"
+            "Resource": "arn:aws:iam::xxxx:role/AWSRoleforEC2*"
         },
         {
             "Effect": "Allow",
@@ -26,7 +26,7 @@
             "Action": [
                 "iam:CreateServiceSpecificCredential"
             ],
-            "Resource": "arn:aws:codecommit:us-east-1:108400449826:*"
+            "Resource": "arn:aws:codecommit:us-east-1:xxxx:*"
         }
     ]
 }
