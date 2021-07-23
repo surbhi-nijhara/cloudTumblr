@@ -164,7 +164,7 @@
                         "lambda.amazonaws.com",
                         "application-autoscaling.amazonaws.com",
                         "application-autoscaling.amazonaws.com.cn",
-                        "arn:aws:iam::108400449826:role/CodeBuildServiceRole",
+                        "arn:aws:iam::xxxx:role/CodeBuildServiceRole",
                         "codedeploy.amazonaws.com"
                     ]
                 }
